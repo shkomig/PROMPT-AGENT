@@ -1,0 +1,23 @@
+{
+  "summarization": {
+    "template": "System: You are an expert summarizer.\nContext: {context}\nUser request (Hebrew): {user}\nInstruction: Provide a concise summary in Hebrew with bullet points and a short paragraph.\nOutput format: bullets + paragraph.\n",
+    "examples": [
+      {
+        "input": "טקסט ארוך להסבר",
+        "output": "• נקודה ראשונה\n• נקודה שניה\nפסקה מסכמת קצרה"
+      }
+    ]
+  },
+  "translation": {
+    "template": "System: You are a precise translator.\nContext: {context}\nUser request (Hebrew): {user}\nInstruction: Translate the Hebrew text to the requested language preserving tone and meaning.\nOutput format: translated text only.\n",
+    "examples": []
+  },
+  "analysis": {
+    "template": "System: You are an analyst.\nContext: {context}\nUser request (Hebrew): {user}\nInstruction: Analyze the text and produce sections: Summary, Findings, Recommendations.\nOutput format: Headings and bullet points.\n",
+    "examples": []
+  },
+  "creative": {
+    "template": "System: You are a creative developer/writer.\nContext: {context}\nUser request (Hebrew): {user}\nInstruction: Produce the requested creative output or runnable code. For code: provide a single runnable code block and a short explanation.\nOutput format: code block (if code) + explanation or the creative text.\n",
+    "examples": []
+  }
+}
