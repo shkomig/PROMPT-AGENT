@@ -47,7 +47,10 @@
       </section>
 
       <section class="panel" id="rulesPanel">
-        <h2>Derived rules and examples</h2>
+        <div class="panel-header">
+          <h2>Derived rules and examples</h2>
+          <label class="inline-filter"><input type="checkbox" id="filterRelevant" /> הצג רק נושאים רלוונטיים</label>
+        </div>
         <div id="rules">Loading...</div>
       </section>
 
@@ -83,22 +86,6 @@
             בעברית או באנגלית.
           </li>
         </ul>
-      </section>
-
-      <section class="panel" id="settingsPanel">
-        <h2>Settings</h2>
-        <label for="chunkSize">Chunk max tokens (for retrieval):</label>
-        <input id="chunkSize" type="number" min="16" max="500" value="80" />
-        <button id="saveConfig">Save Config</button>
-      </section>
-
-      <section class="panel" id="templatesPanel">
-        <h2>Prompt Templates Editor</h2>
-        <div>
-          <button id="loadTemplates">Load Templates</button>
-          <button id="saveTemplates">Save Templates</button>
-        </div>
-        <textarea id="templatesEditor" rows="12"></textarea>
       </section>
     </main>
 

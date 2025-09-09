@@ -8,20 +8,43 @@ async function loadRules() {
     const res = await fetch('/api/rules')
     const data = await res.json()
     if (!data.ok) throw new Error(data.error || 'Failed to load rules')
+    // render structured view
+    function renderRules(filterRelevant) {
+      const container = document.createElement('div')
+      const guidesLine = document.createElement('div')
+      guidesLine.textContent = 'Guides found: ' + (data.guides || []).join(', ')
+      container.appendChild(guidesLine)
 
-    const parts = []
-    parts.push('Guides found: ' + (data.guides || []).join(', '))
-    parts.push('\nTask hints:')
-    for (const [k, v] of Object.entries(data.rules.taskHints || {})) {
-      parts.push(`${k}: ${v.join(', ')}`)
+      const hintsTitle = document.createElement('h4')
+      hintsTitle.textContent = 'Task hints'
+      container.appendChild(hintsTitle)
+      const ul = document.createElement('ul')
+      for (const [k, v] of Object.entries(data.rules.taskHints || {})) {
+        if (filterRelevant && (!v || v.length === 0)) continue
+        const li = document.createElement('li')
+        li.textContent = `${k}: ${v.join(', ')}`
+        ul.appendChild(li)
+      }
+      container.appendChild(ul)
+
+      const exTitle = document.createElement('h4')
+      exTitle.textContent = 'Examples'
+      container.appendChild(exTitle)
+      for (const ex of data.rules.examples || []) {
+        const p = document.createElement('p')
+        p.textContent = `• ${ex.filename}: ${ex.snippet.slice(0, 120).replace(/\n/g, ' ')}...`
+        container.appendChild(p)
+      }
+      return container
     }
-    parts.push('\nExamples:')
-    for (const ex of data.rules.examples || []) {
-      parts.push(
-        `- ${ex.filename}: ${ex.snippet.slice(0, 120).replace(/\n/g, ' ')}...`
-      )
-    }
-    el.textContent = parts.join('\n')
+
+    const filterEl = document.getElementById('filterRelevant')
+    el.innerHTML = ''
+    el.appendChild(renderRules(filterEl.checked))
+    filterEl.addEventListener('change', () => {
+      el.innerHTML = ''
+      el.appendChild(renderRules(filterEl.checked))
+    })
   } catch (err) {
     el.textContent = 'Error loading rules: ' + err.message
   }
@@ -60,10 +83,15 @@ async function buildPrompt() {
     // show which retrieved contexts were used (if any)
     const rulesPanel = document.getElementById('rules')
     if (data.retrieved && data.retrieved.length) {
-      const lines = data.retrieved.map(
-        (r) => `${r.filename} (score=${r.score.toFixed(3)})`
-      )
-      rulesPanel.textContent = 'Retrieved contexts:\n' + lines.join('\n')
+      const list = document.createElement('ul')
+      for (const r of data.retrieved) {
+        const li = document.createElement('li')
+        li.textContent = `${r.filename} (score=${r.score.toFixed(3)})`
+        list.appendChild(li)
+      }
+      rulesPanel.innerHTML = ''
+      rulesPanel.appendChild(document.createTextNode('Retrieved contexts:'))
+      rulesPanel.appendChild(list)
     }
 
     modelEl.textContent =
@@ -94,74 +122,3 @@ document.getElementById('copyFinal').addEventListener('click', () => {
 
 // Load on startup
 loadRules()
-
-// Config management
-async function loadConfig() {
-  try {
-    const res = await fetch('/api/config')
-    const data = await res.json()
-    if (data && data.ok && data.config) {
-      document.getElementById('chunkSize').value = data.config.chunkMaxTokens
-    }
-  } catch (e) {
-    console.warn('Failed to load config', e)
-  }
-}
-
-async function saveConfig() {
-  const v = parseInt(document.getElementById('chunkSize').value, 10)
-  try {
-    const res = await fetch('/api/config', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chunkMaxTokens: v }),
-    })
-    const data = await res.json()
-    if (!data.ok) throw new Error(data.error || 'Failed to save config')
-    alert('Config saved. Rebuilt index in background.')
-  } catch (e) {
-    alert('Save config failed: ' + e.message)
-  }
-}
-
-document.getElementById('saveConfig').addEventListener('click', saveConfig)
-
-// Templates editor
-async function loadTemplates() {
-  try {
-    const res = await fetch('/api/templates')
-    const data = await res.json()
-    if (!data.ok) throw new Error(data.error || 'Failed to load templates')
-    document.getElementById('templatesEditor').value = JSON.stringify(
-      data.templates,
-      null,
-      2
-    )
-  } catch (e) {
-    alert('Failed to load templates: ' + e.message)
-  }
-}
-
-async function saveTemplates() {
-  try {
-    const txt = document.getElementById('templatesEditor').value
-    const json = JSON.parse(txt)
-    const res = await fetch('/api/templates', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(json),
-    })
-    const data = await res.json()
-    if (!data.ok) throw new Error(data.error || 'Failed to save templates')
-    alert('Templates saved')
-  } catch (e) {
-    alert('Save templates failed: ' + e.message)
-  }
-}
-
-document.getElementById('loadTemplates').addEventListener('click', loadTemplates)
-document.getElementById('saveTemplates').addEventListener('click', saveTemplates)
-
-// Load config and templates at startup
-loadConfig()
-loadTemplates()

@@ -4,17 +4,11 @@ const path = require('path')
 const pdf = require('pdf-parse')
 const mammoth = require('mammoth')
 const natural = require('natural')
-const chokidar = require('chokidar')
 
 // tokenizer and TF-IDF index (in-memory)
 const tokenizer = new natural.WordTokenizer()
 let tfidf = null
 let tfDocuments = []
-
-// Configurable options (exposed via /api/config)
-const CONFIG = {
-  chunkMaxTokens: 80,
-}
 
 // simple debounce helper
 function debounce(fn, wait) {
@@ -28,8 +22,37 @@ function debounce(fn, wait) {
 const DATA_DIR = path.join(__dirname, 'data')
 
 const app = express()
-app.use(express.json())
+// capture raw body for debugging JSON parse errors and set a reasonable size limit
+app.use(
+  express.json({
+    limit: '2mb',
+    verify: function (req, res, buf, encoding) {
+      try {
+        req.rawBody = buf.toString(encoding || 'utf8')
+      } catch (e) {
+        req.rawBody = undefined
+      }
+    },
+  })
+)
 app.use(express.static(path.join(__dirname, 'public')))
+
+// error handler for invalid JSON body (body-parser)
+app.use((err, req, res, next) => {
+  if (err && err.type === 'entity.parse.failed') {
+    // write raw request body to server.log for debugging
+    try {
+      const logLine = `[${new Date().toISOString()}] Invalid JSON body from ${
+        req.ip
+      } - rawBody=${JSON.stringify(req.rawBody)}\n`
+      fs.appendFileSync(path.join(__dirname, 'server.log'), logLine)
+    } catch (e) {
+      // ignore logging errors
+    }
+    return res.status(400).json({ ok: false, error: 'Invalid JSON body' })
+  }
+  next()
+})
 
 // Helper: read all files in DATA_DIR and extract text
 async function readGuides() {
@@ -65,7 +88,7 @@ async function readGuides() {
 
 // Simple chunking: split by paragraphs and lines; keep small chunks
 // Chunk by approximate token count (word tokens)
-function chunkText(text, maxTokens = CONFIG.chunkMaxTokens) {
+function chunkText(text, maxTokens = 60) {
   const words = tokenizer.tokenize(text)
   const chunks = []
   for (let i = 0; i < words.length; i += maxTokens) {
@@ -90,72 +113,20 @@ async function buildIndex() {
   }
 }
 
-// Use chokidar for stable watching and debounced index rebuilds
+// Watch data directory and rebuild index on changes (debounced)
 try {
   const rebuild = debounce(() => {
     buildIndex().catch((e) => console.error('index build error', e.message))
   }, 500)
-
-  const watcher = chokidar.watch(DATA_DIR, { ignoreInitial: true })
-  watcher.on('add', (p) => {
-    console.log('file added', p)
-    rebuild()
-  })
-  watcher.on('change', (p) => {
-    console.log('file changed', p)
-    rebuild()
-  })
-  watcher.on('unlink', (p) => {
-    console.log('file removed', p)
-    rebuild()
+  fs.watch(DATA_DIR, { persistent: false }, (eventType, filename) => {
+    if (filename) {
+      console.log('data dir change detected:', eventType, filename)
+      rebuild()
+    }
   })
 } catch (err) {
-  console.error('watcher setup failed', err && err.message)
+  // ignore watcher errors if DATA_DIR missing
 }
-
-// Expose a small config endpoint to view/update runtime options
-app.get('/api/config', (req, res) => {
-  res.json({ ok: true, config: CONFIG })
-})
-
-app.put('/api/config', express.json(), (req, res) => {
-  const body = req.body || {}
-  if (typeof body.chunkMaxTokens === 'number' && body.chunkMaxTokens > 8) {
-    CONFIG.chunkMaxTokens = Math.floor(body.chunkMaxTokens)
-    // rebuild index with new chunk size
-    buildIndex().catch((e) => console.error('index rebuild error', e.message))
-    return res.json({ ok: true, config: CONFIG })
-  }
-  res.status(400).json({ ok: false, error: 'invalid config' })
-})
-
-// Endpoints to get and update prompt templates
-const TEMPLATES_PATH = path.join(__dirname, 'public', 'prompt_templates.json')
-app.get('/api/templates', async (req, res) => {
-  try {
-    const data = await fs.promises.readFile(TEMPLATES_PATH, 'utf8')
-    const json = JSON.parse(data)
-    res.json({ ok: true, templates: json })
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message })
-  }
-})
-
-app.put('/api/templates', express.json(), async (req, res) => {
-  try {
-    const json = req.body
-    if (!json || typeof json !== 'object')
-      return res.status(400).json({ ok: false, error: 'invalid body' })
-    await fs.promises.writeFile(
-      TEMPLATES_PATH,
-      JSON.stringify(json, null, 2),
-      'utf8'
-    )
-    res.json({ ok: true, templates: json })
-  } catch (err) {
-    res.status(500).json({ ok: false, error: err.message })
-  }
-})
 
 // Retrieve top-k relevant chunks for a query using TF-IDF cosine-like scores
 function retrieveTopK(query, k = 3) {
