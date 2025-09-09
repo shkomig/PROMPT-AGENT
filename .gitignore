@@ -1,0 +1,9 @@
+node_modules/
+server.log
+parse_all.log
+rules.json
+.env
+/.vscode/
+npm-debug.log
+package-lock.json
+/.DS_Store
