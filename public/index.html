@@ -7,87 +7,86 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main>
-      <h1>בניית פרומפט מקצועי (עברית)</h1>
-
-      <section class="panel">
-        <label for="userText">הזן את הפרומפט/בקשה שלך בעברית:</label>
-        <textarea id="userText" placeholder="הקלד כאן..." rows="6"></textarea>
-        <div class="controls">
-          <select id="modelSelect">
-            <option value="gpt-4">GPT-4</option>
-            <option value="claude-2.1">Claude-2.1</option>
-          </select>
-          <label for="langSelect">Output language:</label>
-          <select id="langSelect">
-            <option value="he">Hebrew</option>
-            <option value="en">English</option>
-          </select>
-          <label for="temp">temperature</label>
-          <input
-            id="temp"
-            type="number"
-            step="0.1"
-            min="0"
-            max="1"
-            value="0.7"
-          />
-          <label for="top_p">top_p</label>
-          <input
-            id="top_p"
-            type="number"
-            step="0.1"
-            min="0"
-            max="1"
-            value="1.0"
-          />
-          <button id="generate">Generate Professional Prompt</button>
-          <button id="reloadRules">Reload Guides</button>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <div class="logo">🧠</div>
+          <div>
+            <div class="title">Prompt Lab</div>
+            <div class="subtitle">בניית prompts מקצועיים — עברית</div>
+          </div>
         </div>
-      </section>
-
-      <section class="panel" id="rulesPanel">
-        <div class="panel-header">
-          <h2>Derived rules and examples</h2>
-          <label class="inline-filter"><input type="checkbox" id="filterRelevant" /> הצג רק נושאים רלוונטיים</label>
+        <div class="header-actions">
+          <button id="reloadRules" class="ghost">רענון מדריכים</button>
         </div>
-        <div id="rules">Loading...</div>
-      </section>
+      </header>
 
-      <section class="panel" id="outputPanel">
-        <h2>Professional Prompt</h2>
-        <h3>Engineered prompt (detailed)</h3>
-        <pre id="result">—</pre>
-        <h3>Final prompt (paste-ready)</h3>
-        <pre id="final">—</pre>
-        <div class="controls">
-          <button id="copyFinal">Copy final prompt</button>
-        </div>
-        <div id="model">Model recommendation: —</div>
-      </section>
+      <div class="app-body">
+        <aside class="sidebar">
+          <div class="sidebar-section">
+            <h4>פעולות מהירות</h4>
+            <button id="quickGenerate" class="primary">צור פרומפט</button>
+            <button id="openRules">הצג חוקים</button>
+          </div>
+          <div class="sidebar-section">
+            <h4>סינון</h4>
+            <label><input type="checkbox" id="filterRelevant" /> הצג רק רלוונטיים</label>
+          </div>
+          <div class="sidebar-section small">
+            <div>Model:</div>
+            <select id="modelSelect">
+              <option value="gpt-4">GPT-4</option>
+              <option value="claude-2.1">Claude-2.1</option>
+            </select>
+          </div>
+        </aside>
 
-      <section class="panel" id="paramsPanel">
-        <h2>הסבר פרמטרים</h2>
-        <ul>
-          <li>
-            <strong>temperature</strong>: שולט ברנדומליות של התשובות; 0.0 =
-            תשובה דטרמיניסטית, 0.7 = יצירתיות גבוהה יותר.
-          </li>
-          <li>
-            <strong>top_p</strong>: nucleus sampling; שומר על הסיכוי המצטבר עד
-            לערך זה (1.0 = אין סינון).
-          </li>
-          <li>
-            <strong>model</strong>: בחירת המודל להמלצה (GPT-4/Claude). המערכת
-            מייצרת המלצה משלה אך ניתן לבחור ידנית.
-          </li>
-          <li>
-            <strong>Output language</strong>: קובע האם התוצאה הסופית תינתן
-            בעברית או באנגלית.
-          </li>
-        </ul>
-      </section>
-    </main>
+        <main class="content">
+          <section class="card" id="inputCard">
+            <label for="userText">הזן את הפרומפט/בקשה שלך בעברית:</label>
+            <textarea id="userText" placeholder="הקלד כאן..." rows="6"></textarea>
+
+            <div class="row">
+              <label for="langSelect">שפת פלט</label>
+              <select id="langSelect">
+                <option value="he">עברית</option>
+                <option value="en">אנגלית</option>
+              </select>
+
+              <label for="temp">temperature</label>
+              <input id="temp" type="range" min="0" max="1" step="0.05" value="0.7" />
+              <span class="rangeValue" id="tempVal">0.7</span>
+
+              <label for="top_p">top_p</label>
+              <input id="top_p" type="range" min="0" max="1" step="0.05" value="1.0" />
+              <span class="rangeValue" id="topVal">1.0</span>
+            </div>
+
+            <div class="actions">
+              <button id="generate" class="primary">צור פרומפט מקצועי</button>
+              <button id="copyFinal">העתק פרומפט סופי</button>
+              <div id="spinner" class="spinner hidden"></div>
+            </div>
+          </section>
+
+          <section class="card" id="rulesPanel">
+            <h3>חוקים ודוגמאות</h3>
+            <div id="rules">Loading...</div>
+          </section>
+
+          <section class="card" id="outputPanel">
+            <h3>תוצאה</h3>
+            <div class="tabs">
+              <button class="tab active" data-target="result">מפושט</button>
+              <button class="tab" data-target="final">מוכן להדבקה</button>
+            </div>
+            <pre id="result">—</pre>
+            <pre id="final" class="hidden">—</pre>
+            <div id="model">Model recommendation: —</div>
+          </section>
+        </main>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>

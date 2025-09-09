@@ -64,6 +64,8 @@ async function buildPrompt() {
   }
 
   resultEl.textContent = 'Generating...'
+  // show spinner
+  document.getElementById('spinner').classList.remove('hidden')
   try {
     const res = await fetch('/api/build', {
       method: 'POST',
@@ -73,7 +75,7 @@ async function buildPrompt() {
     const data = await res.json()
     if (!data.ok) throw new Error(data.error || 'Failed to build prompt')
 
-    resultEl.textContent = data.professionalPrompt
+  resultEl.textContent = data.professionalPrompt
     // show detailed professional prompt
     resultEl.textContent = data.professionalPrompt
     // show final paste-ready prompt
@@ -101,13 +103,16 @@ async function buildPrompt() {
       data.params.temperature +
       ', top_p=' +
       data.params.top_p
+    // hide spinner
+    document.getElementById('spinner').classList.add('hidden')
   } catch (err) {
     resultEl.textContent = 'Error: ' + err.message
     modelEl.textContent = ''
+    document.getElementById('spinner').classList.add('hidden')
   }
 }
-
 document.getElementById('generate').addEventListener('click', buildPrompt)
+document.getElementById('quickGenerate').addEventListener('click', buildPrompt)
 document.getElementById('reloadRules').addEventListener('click', loadRules)
 document.getElementById('copyFinal').addEventListener('click', () => {
   const final = document.getElementById('final').textContent
@@ -118,6 +123,29 @@ document.getElementById('copyFinal').addEventListener('click', () => {
   } catch (e) {
     alert('Copy failed: ' + e.message)
   }
+})
+
+// range displays
+const temp = document.getElementById('temp')
+const tempVal = document.getElementById('tempVal')
+const top_p = document.getElementById('top_p')
+const topVal = document.getElementById('topVal')
+temp.addEventListener('input', () => (tempVal.textContent = temp.value))
+top_p.addEventListener('input', () => (topVal.textContent = top_p.value))
+
+// tabs
+document.querySelectorAll('.tab').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'))
+    btn.classList.add('active')
+    const target = btn.dataset.target
+    document.getElementById('result').classList.toggle('hidden', target !== 'result')
+    document.getElementById('final').classList.toggle('hidden', target !== 'final')
+  })
+})
+
+document.getElementById('openRules').addEventListener('click', () => {
+  document.getElementById('rulesPanel').scrollIntoView({ behavior: 'smooth' })
 })
 
 // Load on startup
