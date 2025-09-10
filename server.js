@@ -9,6 +9,7 @@ const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 let tfidf = null
 let tfDocuments = []
+let PRIORITY_BASES = new Set()
 
 // simple debounce helper
 function debounce(fn, wait) {
@@ -20,6 +21,8 @@ function debounce(fn, wait) {
 }
 
 const DATA_DIR = path.join(__dirname, 'data')
+// Config: threshold for considering a retrieved chunk as relevant (TF-IDF measure)
+const CONTEXT_TFIDF_THRESHOLD = 0.08 // tuneable; TF-IDF measure scale is library-specific
 
 const app = express()
 // capture raw body for debugging JSON parse errors and set a reasonable size limit
@@ -103,11 +106,15 @@ async function buildIndex() {
   const guides = await readGuides().catch(() => [])
   tfidf = new natural.TfIdf()
   tfDocuments = []
+  PRIORITY_BASES = new Set()
   let id = 0
+  const priorityNames = new Set(['12', '13', '14', '15'])
   for (const g of guides) {
+    const base = path.basename(g.filename, path.extname(g.filename))
+    if (priorityNames.has(base)) PRIORITY_BASES.add(base)
     const chunks = chunkText(g.text || '')
     for (const c of chunks) {
-      tfDocuments.push({ id: id++, filename: g.filename, text: c })
+      tfDocuments.push({ id: id++, filename: g.filename, base, text: c })
       tfidf.addDocument(c)
     }
   }
@@ -136,11 +143,17 @@ function retrieveTopK(query, k = 3) {
     scores.push({ index: i, score: measure })
   })
   scores.sort((a, b) => b.score - a.score)
-  const top = scores.slice(0, k).map((s) => {
+  // apply threshold and boost priority docs
+  const filtered = []
+  for (const s of scores) {
     const doc = tfDocuments[s.index]
-    return { filename: doc.filename, snippet: doc.text, score: s.score }
-  })
-  return top
+    if (!doc) continue
+    const boost = doc.base && PRIORITY_BASES.has(doc.base) ? 2.0 : 1.0
+    const adjusted = s.score * boost
+    if (adjusted >= CONTEXT_TFIDF_THRESHOLD) filtered.push({ filename: doc.filename, snippet: doc.text, score: adjusted })
+  }
+  // return top-k of filtered results
+  return filtered.slice(0, k)
 }
 
 // Derive simple prompt engineering rules from guides
@@ -288,12 +301,73 @@ app.post('/api/build', async (req, res) => {
     const example = retrieved && retrieved.length ? retrieved[0] : null
 
     // Build the professional prompt in English, ready to paste into GPT-like platforms
+    // Helpers: detect code-like snippets and format them into fenced blocks with a short description
+    function isCodeSnippet(text) {
+      if (!text || typeof text !== 'string') return false
+      const codeIndicators = [
+        'const ',
+        'let ',
+        'function ',
+        '=>',
+        '{\n',
+        ';\n',
+        'import ',
+        'class ',
+        '#include',
+        'def ',
+        'console.log',
+        'fetch(',
+      ]
+      let score = 0
+      for (const ind of codeIndicators) if (text.indexOf(ind) !== -1) score++
+      // also treat as code if many lines and many semicolons
+      const lines = text.split(/\r?\n/).length
+      const semis = (text.match(/;/g) || []).length
+      if (lines > 3 && semis > 1) score += 2
+      return score >= 2
+    }
+
+    function detectLanguage(text) {
+      if (!text) return 'text'
+      if (/\b(function|const|let|=>|console\.log)\b/.test(text)) return 'javascript'
+      if (/\b(def |import |print\()/.test(text)) return 'python'
+      if (/^<\?php|echo\s+\$/m.test(text)) return 'php'
+      return 'text'
+    }
+
+    function describeSnippet(text) {
+      const t = (text || '').toLowerCase()
+      if (t.includes('authorization') || t.includes('bearer') || t.includes('token'))
+        return 'Retrieves a valid Bearer token and sets HTTP headers.'
+      if (t.includes('fetch(') || t.includes('axios') || t.includes('http'))
+        return 'Example: HTTP request with headers and JSON payload.'
+      if (t.includes('class ') || t.includes('new ')) return 'Class or constructor example.'
+      if (t.includes('def ') || t.includes('import ')) return 'Python function example.'
+      return 'Code example demonstrating the described behavior.'
+    }
+
+    function formatSnippet(text, filename) {
+      if (!text) return ''
+      const short = text.slice(0, 3000)
+      if (isCodeSnippet(short)) {
+        const lang = detectLanguage(short)
+        const desc = describeSnippet(short)
+        // ensure snippet lines are not excessively long
+        const safeSnippet = short
+          .split(/\r?\n/)
+          .map((l) => l.trimEnd())
+          .join('\n')
+    return `// From ${filename}: ${desc}\n\n\`\`\`${lang}\n${safeSnippet}\n\`\`\`\n`
+      }
+      // plain text: collapse whitespace and return a short paragraph
+      const collapsed = short.replace(/\s+/g, ' ').trim()
+      return collapsed
+    }
     const contextSection = example
-      ? `Context (example guide: ${example.filename}):\n${example.snippet.slice(
-          0,
-          800
-        )}`
+      ? formatSnippet(example.snippet.slice(0, 800), example.filename)
       : 'Context: No example available from the guides.'
+    
+      
 
     // Instruction: include the original Hebrew request and a clear English instruction for the model
     const instructionHebrew = text
@@ -323,16 +397,28 @@ app.post('/api/build', async (req, res) => {
       top_p: 1.0,
     }
 
+    // Prefer few-shot examples from files suggested by rules.taskHints for this task
     let fewShotEnglish = ''
-    if (retrieved && retrieved.length) {
+    try {
+      const taskFiles = (rules.taskHints && rules.taskHints[task]) || []
+      if (taskFiles && taskFiles.length) {
+        // find matching guides and take first snippets from tfDocuments
+        const examples = []
+        for (const td of tfDocuments) {
+          if (taskFiles.includes(td.filename) && examples.length < 3) {
+            examples.push(formatSnippet(td.text.slice(0, 800), td.filename))
+          }
+        }
+        if (examples.length) fewShotEnglish = examples.join('\n\n')
+      }
+    } catch (e) {
+      fewShotEnglish = ''
+    }
+
+    if (!fewShotEnglish && retrieved && retrieved.length) {
       fewShotEnglish = retrieved
-        .map(
-          (r) =>
-            `Few-shot example (from ${r.filename}, score=${r.score.toFixed(
-              3
-            )}):\n"${r.snippet.replace(/\s+/g, ' ').slice(0, 300)}..."\n\n`
-        )
-        .join('\n')
+        .map((r) => formatSnippet(r.snippet.slice(0, 800), r.filename))
+        .join('\n\n')
     }
 
     const professionalPrompt = [
