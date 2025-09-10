@@ -1,0 +1,559 @@
+[
+  {
+    "filename": "01-overview.markdown",
+    "summary": "```yaml --- title: Overview of Web-Based Game Development description: An introduction to the core concepts and tools for building interactive games in the browser using JavaScript and Canvas. tags: [JavaScript, Canvas, game development, web games, React] priority: high language: he --- ``` # סקירה כללית של פיתוח משחקים מבוססי דפדפן ## Introduction Web-based game development combines JavaScript, HTML5 Canvas, and modern frameworks like React to create engaging, interactive experiences directly in the browser.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "accessibility",
+      "state",
+      "hooks",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 7857,
+    "priority": true
+  },
+  {
+    "filename": "02-game-loop.markdown",
+    "summary": "```yaml --- title: Understanding the Game Loop description: A detailed guide on implementing and optimizing the game loop for smooth web-based game performance. tags: [JavaScript, Canvas, game loop, game development, React] priority: high language: he --- ``` # הבנת לולאת המשחק ## Introduction The game loop is the heartbeat of any interactive game, orchestrating the update and rendering cycles to create smooth, responsive gameplay.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "collision",
+      "state",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 9596,
+    "priority": true
+  },
+  {
+    "filename": "03-canvas-basics.markdown",
+    "summary": "```yaml --- title: Canvas API Basics description: A comprehensive guide to using the HTML5 Canvas API for rendering graphics in web-based games. tags: [JavaScript, Canvas, game development, web games, React] priority: high language: he --- ``` # יסודות ה-Canvas API ## Introduction The HTML5 Canvas API is a cornerstone of web-based game development, providing a powerful and flexible way to render 2D graphics directly in the browser. It enables developers to draw shapes, images, and text, making it ideal for creating game visuals like sprites, backgrounds, and UI elements.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "state",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 8844,
+    "priority": true
+  },
+  {
+    "filename": "04-input-handling.markdown",
+    "summary": "```yaml --- title: Handling User Input in Games description: A guide to capturing and processing user input (keyboard, mouse, touch) for interactive web-based games. tags: [JavaScript, Canvas, user input, game development, React] priority: medium language: he --- ``` # טיפול בקלט משתמש במשחקים ## Introduction User input is a core component of interactive games, enabling players to control characters, navigate menus, or trigger actions.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "accessibility",
+      "state",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 9469,
+    "priority": true
+  },
+  {
+    "filename": "05-collision-detection.markdown",
+    "summary": "```yaml --- title: Collision Detection in Games description: A guide to implementing collision detection techniques for web-based games using JavaScript. tags: [JavaScript, Canvas, collision detection, game development, React] priority: medium language: he --- ``` # זיהוי התנגשויות במשחקים ## Introduction Collision detection is essential for realistic and interactive gameplay, allowing the game to respond when objects overlap, such as a ball hitting a paddle or a tetromino landing on the board.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "collision",
+      "state",
+      "component",
+      "priority"
+    ],
+    "length": 9314,
+    "priority": true
+  },
+  {
+    "filename": "1.pdf",
+    "summary": "ChatGPT Learning prompt engineering with100+ examples José Alberto Hernández Javier Conde Blanca Querol Gonzalo Martínez Pedro Reviriego Madrid,2024 José Alberto Hernández Javier Conde Blanca Querol Gonzalo Martínez Pedro Reviriego Print version available in: https://www.amazon.com/ChatGPT-Learning-prompt- engineering-examples-ebook/dp/B0CYQLM4HH iii Contents Before we start1 Warming up3 What is ChatGPT?. . . . . . . . . . . . . . . . . . . . . . . . . . .3 How do I get access to an LLM. . . . . . . . . . . . . . . . . . . .7 Possibilities and uses. . . . . . . . . . . . . . . . . . . . . . . .",
+    "tags": [
+      "game",
+      "canvas",
+      "react",
+      "performance",
+      "input",
+      "touch",
+      "ocr",
+      "pdf",
+      "security",
+      "deploy",
+      "audio",
+      "physics",
+      "state",
+      "component",
+      "api",
+      "token"
+    ],
+    "length": 214051
+  },
+  {
+    "filename": "10.pdf",
+    "summary": "PROMPTENGINEERING FORCHATGPT A QUICKGUIDE TOTECHNIQUES, TIPS,ANDBESTPRACTICES Learn from the Best: Let Genie (ChatGPT) teach you how to make wise Wishes (Prompts) ChatGPT 4 (author) OpenAI OpenAI.com Sabit Ekin (prompt engineer) Texas A&M University sabitekin@tamu.edu ABSTRACT In the rapidly evolving landscape of natural language processing (NLP), ChatGPT has emerged as a powerful tool for various industries and applications.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "touch",
+      "accessibility",
+      "state",
+      "api",
+      "fetch",
+      "token"
+    ],
+    "length": 37246
+  },
+  {
+    "filename": "11.pdf",
+    "summary": "Reference Table: Prompting Techniques at a Glance This table summarizes the most effective prompt engineering techniques, when to use them, sample prompts, and the kind of results you can expect, all in one place. Use this quick reference for prompt engineering when designing your own prompts or experimenting with new strategies. Many of these techniques can also be combined to achieve more precise, creative, and reliable outputs.",
+    "tags": [
+      "game",
+      "input",
+      "state",
+      "token"
+    ],
+    "length": 6409
+  },
+  {
+    "filename": "12-tutorial-tetris.markdown",
+    "summary": "```yaml --- title: Tetris Game Tutorial description: A step-by-step guide to building a Tetris game using JavaScript and Canvas API. tags: [Tetris, JavaScript, Canvas, game development, web games] priority: PRIORITY language: he --- ``` # מדריך לבניית משחק טטריס ## Introduction Tetris is a classic puzzle game that serves as an excellent project for learning game development fundamentals. Building Tetris using JavaScript and the Canvas API teaches essential concepts like game loops, collision detection, and user input handling, which are critical for creating interactive web applications.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "accessibility",
+      "collision",
+      "state",
+      "component",
+      "api",
+      "tutorial",
+      "priority"
+    ],
+    "length": 5833,
+    "priority": true
+  },
+  {
+    "filename": "12.docx",
+    "summary": "Prompt Engineering – From Basics to the Future: Complete University Course === 01_introduction.txt === Module 1: Introduction to the Field of Prompt Engineering Introduction Prompt engineering has emerged as one of the most critical disciplines in artificial intelligence, fundamentally transforming how humans interact with and leverage the capabilities of large language models (LLMs) and other AI systems.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "pdf",
+      "deploy",
+      "audio",
+      "state",
+      "component",
+      "api",
+      "token"
+    ],
+    "length": 68530
+  },
+  {
+    "filename": "13-example-react-game.markdown",
+    "summary": "```yaml --- title: React Game Example description: A guide to building an interactive game using React and Canvas for web-based game development. tags: [React, JavaScript, Canvas, game development, web games] priority: PRIORITY language: he --- ``` # דוגמה למשחק ב-React ## Introduction Building interactive games in React combines the power of component-based architecture with dynamic rendering capabilities, making it an excellent choice for web-based game development. React’s state management and lifecycle methods allow developers to create engaging, maintainable games.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "accessibility",
+      "collision",
+      "state",
+      "hooks",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 7798,
+    "priority": true
+  },
+  {
+    "filename": "13.docx",
+    "summary": "=== 01_introduction.txt === Title: Introduction to the Field of Prompt Engineering – Foundations, Context, and Significance 1. Introduction 1.1 What is Prompt Engineering? Prompt engineering is the practice of designing and refining inputs (prompts) to guide the behavior of large-scale generative models, such as large language models (LLMs) and image generation systems. Unlike traditional programming, which relies on strict syntax and logic, prompt engineering manipulates natural language to elicit specific outputs from models that are probabilistic, opaque, and trained on massive datasets.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "ocr",
+      "accessibility",
+      "component",
+      "api",
+      "token"
+    ],
+    "length": 20036
+  },
+  {
+    "filename": "14-code-snippets.markdown",
+    "summary": "```yaml --- title: Code Snippets for Game Development description: A collection of reusable code snippets for common game development tasks using JavaScript and Canvas. tags: [JavaScript, Canvas, React, game development, code snippets] priority: PRIORITY language: he --- ``` # קטעי קוד לפיתוח משחקים ## Introduction In web-based game development, reusable code snippets are essential for streamlining tasks like rendering graphics, handling user input, and managing game state. These snippets save time and ensure consistency across projects.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "accessibility",
+      "collision",
+      "state",
+      "hooks",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 7265,
+    "priority": true
+  },
+  {
+    "filename": "14.docx",
+    "summary": "=== 04_rag.txt === Title: Retrieval-Augmented Generation (RAG) and Hybrid Techniques – Bridging Generation and External Knowledge in Prompt Engineering 1. Introduction 1.1 From Hallucination to Grounding One of the most significant limitations of large language models (LLMs) is their tendency to hallucinate — confidently producing information that is plausible-sounding yet factually incorrect. While this may be tolerable in creative writing, it is detrimental in domains such as law, medicine, science, and technical documentation.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "deploy",
+      "state",
+      "component",
+      "api"
+    ],
+    "length": 13497
+  },
+  {
+    "filename": "15-fewshot-examples.json",
+    "summary": "```yaml --- title: Few-Shot Examples for Game Development description: A JSON collection of prompt and desired output pairs for web-based game development tasks. tags: [JavaScript, Canvas, React, game development, few-shot] priority: PRIORITY language: he --- ``` # דוגמאות Few-Shot לפיתוח משחקים ## Introduction Few-shot learning examples help developers understand how to approach common game development tasks by providing clear prompts and desired outputs.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "input",
+      "keyboard",
+      "collision",
+      "state",
+      "component",
+      "priority"
+    ],
+    "length": 10064,
+    "priority": true
+  },
+  {
+    "filename": "15.docx",
+    "summary": "=== 05_prompt_guidelines.txt === Title: Effective Prompt Writing Guidelines – Best Practices for Instruction Design, Clarity, and Model Alignment 1. Introduction 1.1 From Prompting to Instruction Design Prompt engineering has evolved from ad-hoc experimentation into a discipline of instructional design — where clarity, structure, and intent directly influence model behavior. As LLMs become more capable and widely integrated into critical workflows, the demand for systematic prompting guidelines has increased.",
+    "tags": [
+      "react",
+      "input",
+      "ocr",
+      "deploy",
+      "audio",
+      "state",
+      "component",
+      "api"
+    ],
+    "length": 13236
+  },
+  {
+    "filename": "16.docx",
+    "summary": "Prompt Engineering – From Basics to the Future Introduction: The Dawn of a New Discipline The advent of large language models (LLMs) has marked a profound shift in the landscape of artificial intelligence, transitioning from a domain of highly specialized expertise to one of accessible, powerful tools. At the core of this transformation lies prompt engineering, a discipline that serves as the bridge between human intent and machine intelligence.",
+    "tags": [
+      "game",
+      "performance",
+      "input",
+      "keyboard",
+      "ocr",
+      "pdf",
+      "security",
+      "deploy",
+      "audio",
+      "state",
+      "component",
+      "api"
+    ],
+    "length": 65976
+  },
+  {
+    "filename": "2.pdf",
+    "summary": "Claude for Edu - tips to get started Claude for Edu Claude for Edu is designed to seamlessly integrate AI assistance into your daily workflow and empower every team with trusted AI. Below is a quick overview of its key components: - Projects: Dedicated workspaces that allow you to upload key documents and chat with Claude in a focused context. - Chats: Conversational interfaces within projects where you interact directly with Claude, leveraging the context provided by the project's knowledge base.",
+    "tags": [
+      "performance",
+      "pdf",
+      "component"
+    ],
+    "length": 10993
+  },
+  {
+    "filename": "2402.07927v2.pdf",
+    "summary": "A Systematic Survey of Prompt Engineering in Large Language Models: Techniques and Applications Pranab Sahoo 1 ,Ayush Kumar Singh 1 ,Sriparna Saha 1 ,Vinija Jain 2,3∗ ,Samrat Mondal 1 andAman Chadha 2,3* 1 Department of Computer Science And Engineering, Indian Institute of Technology Patna 2 Stanford University, 3 Amazon AI {pranab_2021cs25, ayush_2211ai27, sriparna, samrat}@iitp.ac.in, hi@vinija.ai, hi@aman.ai Abstract Prompt engineering has emerged as an indispens- able technique for extending the capabilities of large language models (LLMs) and vision-language mod- els (VLMs).",
+    "tags": [
+      "game",
+      "react",
+      "performance",
+      "input",
+      "ocr",
+      "deploy",
+      "audio",
+      "physics",
+      "state",
+      "component",
+      "api",
+      "token"
+    ],
+    "length": 67957
+  },
+  {
+    "filename": "3.pdf",
+    "summary": "AI Insights Prompt Engineering Querying a large language model Asking a question of a chatbot or Large Language Model (LLM), is quite like an intelligent search. Instead of entering simple search terms into your browser, and getting a large number of website hits, we can instead ask questions of an LLM and get coherent responses across a surprisingly wide range of subjects. Most people have interacted directly with LLMs in the form of website chatbots, AI assistants, or coding assistants. We ask questions and get answers.",
+    "tags": [
+      "performance",
+      "input",
+      "component",
+      "fetch"
+    ],
+    "length": 12525
+  },
+  {
+    "filename": "4.pdf",
+    "summary": "AI in Academic Research: Mastering GPT-4 and Claude 3.5 Sonnet An Intermediate to Advanced Workshop for Faculty, Students, and Library Staff Elevate your research capabilities with cutting-edge AI tools! This intensive workshop delves into the advanced applications of GPT-4 and Claude 3.5 Sonnet in academic research.",
+    "tags": [
+      "performance",
+      "input",
+      "accessibility",
+      "physics",
+      "state",
+      "component",
+      "api"
+    ],
+    "length": 32352
+  },
+  {
+    "filename": "6.pdf",
+    "summary": "Prompt Engineering Author: Lee Boonstra Prompt Engineering February 20252 Acknowledgements Content contributors Michael Sherman Yuan Cao Erick Armbrust Anant Nawalgaria Antonio Gulli Simone Cammel Curators and Editors Antonio Gulli Anant Nawalgaria Grace Mollison Technical Writer Joey Haymaker Designer Michael Lanning Introduction 6 Prompt engineering 7 LLM output configuration 8 Output length 8 Sampling controls 9 Temperature 9 Top-K and top-P 10 Putting it all together 11 Prompting techniques 13 General prompting / zero shot 13 One-shot & few-shot 15 System, contextual and role prompting 18 ...",
+    "tags": [
+      "game",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "pdf",
+      "security",
+      "audio",
+      "physics",
+      "state",
+      "api",
+      "token"
+    ],
+    "length": 84594
+  },
+  {
+    "filename": "7.pdf",
+    "summary": "Unleashing the Power of Gen AI Prompt Engineering Proprietary content. ©Great Learning. All Rights Reserved. Unauthorized use or distribution prohibited. haiatia14@gmail.com OF2NUVZ0JW This file is meant for personal use by haiatia14@gmail.com only. Sharing or publishing the contents in part or full is liable for legal action.",
+    "tags": [
+      "input",
+      "security",
+      "component",
+      "token"
+    ],
+    "length": 16402
+  },
+  {
+    "filename": "8.pdf",
+    "summary": "PROMPTENGINEERING FORCHATGPT A QUICKGUIDE TOTECHNIQUES, TIPS,ANDBESTPRACTICES Learn from the Best: Let Genie (ChatGPT) teach you how to make wise Wishes (Prompts) ChatGPT 4 (author) OpenAI OpenAI.com Sabit Ekin (prompt engineer) Texas A&M University sabitekin@tamu.edu ABSTRACT In the rapidly evolving landscape of natural language processing (NLP), ChatGPT has emerged as a powerful tool for various industries and applications.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "touch",
+      "accessibility",
+      "state",
+      "api",
+      "fetch",
+      "token"
+    ],
+    "length": 38670
+  },
+  {
+    "filename": "9.pdf",
+    "summary": "PROMPTENGINEERING FORCHATGPT A QUICKGUIDE TOTECHNIQUES, TIPS,ANDBESTPRACTICES Learn from the Best: Let Genie (ChatGPT) teach you how to make wise Wishes (Prompts) ChatGPT 4 (author) OpenAI OpenAI.com Sabit Ekin (prompt engineer) Texas A&M University sabitekin@tamu.edu ABSTRACT In the rapidly evolving landscape of natural language processing (NLP), ChatGPT has emerged as a powerful tool for various industries and applications.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "touch",
+      "accessibility",
+      "state",
+      "api",
+      "fetch",
+      "token"
+    ],
+    "length": 38670
+  },
+  {
+    "filename": "Effective Prompt Engineering in 2025.pdf",
+    "summary": "Effective Prompt Engineering in 2025 Igor Kupczyński What is a prompt? Tell me about privatelink vs Explain the benefits and costs of using AWS PrivateLink, describe key components and typical use cases Compare vague with a clear prompt: Then, prompt engineering is a process of crafting effective inputs to LLMs to guide them toward generating useful outputs.",
+    "tags": [
+      "react",
+      "javascript",
+      "input",
+      "state",
+      "component",
+      "api",
+      "token"
+    ],
+    "length": 12816
+  },
+  {
+    "filename": "Guides.docx",
+    "summary": "01-overview.md text --- title: \"System Overview\" tags: [overview, goals, interactive app, web] priority: true language: en --- # System Overview This guide explains the main goals when building a system for web-based games or interactive apps—what you can create, who it's for, and how the different parts fit together. - Build interactive educational, entertainment, or productivity apps. - Focus on responsive, dynamic user experiences. // Example: create a simple interactive buttondocument.body.innerHTML = \"<button>Start Game</button>\"; text undefined 02-stack-and-tools.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "ocr",
+      "pdf",
+      "security",
+      "deploy",
+      "i18n",
+      "rtl",
+      "accessibility",
+      "webaudio",
+      "audio",
+      "collision",
+      "physics",
+      "state",
+      "hooks",
+      "component",
+      "api",
+      "priority"
+    ],
+    "length": 8026,
+    "priority": true
+  },
+  {
+    "filename": "prompt-engineering-in-2025.pdf",
+    "summary": "“Prompt Engineering” in 2025 and beyond. From basic to better. R i c h T a p e , U B C C T L T , Au g 2025 1 2 A MON THLYSERI ES T HR OU GHOUT 2025 Model Behaviour: Redefining Our A.I. Vocabulary Replay: https://ai.ctlt.ubc.ca/generative-ai-studio-february-26-2025-replay/ Privacy and Ethical considerations around A.I. and how university policy and guidelines intersect (Not Recorded for privacy) Let’s make sure we’re asking (all of) the (right) questions On-device usage of Generative A.I. tools Replay: https://ai.ctlt.ubc.",
+    "tags": [
+      "react",
+      "performance",
+      "input",
+      "state",
+      "token"
+    ],
+    "length": 15109
+  },
+  {
+    "filename": "Web Game Development Knowledge Base.rtf",
+    "summary": "{\\rtf1\\adeflang1037\\ansi\\ansicpg1255\\uc1\\adeff31507\\deff0\\stshfdbch31505\\stshfloch31506\\stshfhich31506\\stshfbi31507\\deflang1033\\deflangfe1033\\themelang1033\\themelangfe0\\themelangcs0{\\fonttbl{\\f0\\fbidi \\froman\\fcharset0\\fprq2{\\*\\panose 02020603050405020304}Times New Roman;}{\\f1\\fbidi \\fswiss\\fcharset0\\fprq2{\\*\\panose 020b0604020202020204}Arial;} {\\f2\\fbidi \\fmodern\\fcharset0\\fprq1{\\*\\panose 02070309020205020404}Courier New;}{\\f3\\fbidi \\froman\\fcharset2\\fprq2{\\*\\panose 05050102010706020507}Symbol;}{\\f10\\fbidi \\fnil\\fcharset2\\fprq2{\\*\\panose 05000000000000000000}Wingdings;} {\\f34\\fbidi \\froman\\fc...",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "react",
+      "javascript",
+      "performance",
+      "input",
+      "keyboard",
+      "touch",
+      "ocr",
+      "pdf",
+      "security",
+      "deploy",
+      "rtl",
+      "accessibility",
+      "audio",
+      "collision",
+      "physics",
+      "state",
+      "hooks",
+      "component",
+      "api"
+    ],
+    "length": 127725
+  },
+  {
+    "filename": "דוגמה למשחק React אינטראקטיבי - Memory Game.docx",
+    "summary": "title: דוגמה למשחק React אינטראקטיבי - Memory Game description: משחק זיכרון מלא ב-React עם hooks, ניהול state מתקדם, אנימציות ומעקב ניקוד tags: [react, game-development, hooks, state-management, animations, component-design, interactive] priority: גבוהה language: he דוגמה למשחק React אינטראקטיבי - Memory Game מבוא React הוא כלי מצוין לבניית משחקים אינטראקטיביים בדפדפן. במדריך זה נבנה משחק זיכרון (Memory Game) מלא עם React Hooks, ניהול state מתקדם, אנימציות CSS ומעקב אחר ביצועים. המשחק ידגים עקרונות חשובים בפיתוח משחקים עם React כולל ניהול מצב מורכב, אופטימיזציה ועיצוב רכיבים מודולרי.",
+    "tags": [
+      "game",
+      "react",
+      "state",
+      "hooks",
+      "component",
+      "tutorial",
+      "priority",
+      "performance"
+    ],
+    "length": 7040,
+    "priority": true
+  },
+  {
+    "filename": "מדריך מלא לבניית משחק טטריס.docx",
+    "summary": "title: מדריך מלא לבניית משחק טטריס description: מדריך צעד אחר צעד לבניית משחק טטריס מלא עם JavaScript ו-Canvas, כולל לוגיקת משחק, ניקוד ורמות קושי tags: [tetris, game-development, canvas, javascript, tutorial, step-by-step, game-logic, scoring] priority: גבוהה language: he מדריך מלא לבניית משחק טטריס מבוא טטריס הוא אחד המשחקים הקלאסיים והפופולריים ביותר בהיסטוריה של משחקי המחשב. בניית טטריס היא פרויקט מצוין ללמידת עקרונות פיתוח משחקים, כולל game loop, ניהול מצב, גרפיקה וטיפול באירועי משתמש. במדריך זה נבנה משחק טטריס מלא מאפס באמצעות JavaScript ו-Canvas API. מבנה הפרויקט 1.",
+    "tags": [
+      "tetris",
+      "game",
+      "canvas",
+      "javascript",
+      "rtl",
+      "api",
+      "tutorial",
+      "priority"
+    ],
+    "length": 15816,
+    "priority": true
+  }
+]

@@ -1,0 +1,89 @@
+```yaml
+---
+title: Few-Shot Examples for Game Development
+description: A JSON collection of prompt and desired output pairs for web-based game development tasks.
+tags: [JavaScript, Canvas, React, game development, few-shot]
+priority: PRIORITY
+language: he
+---
+```
+
+# דוגמאות Few-Shot לפיתוח משחקים
+
+## Introduction
+Few-shot learning examples help developers understand how to approach common game development tasks by providing clear prompts and desired outputs. This JSON file contains 15 prompt/desired_output pairs covering a range of difficulties (easy to hard) for web-based game development using JavaScript, Canvas, and React. These examples are designed to be reusable in projects like Tetris (**12-tutorial-tetris.md**) or Pong (**13-example-react-game.md**) and align with modern web development practices.
+
+```json
+[
+  {
+    "prompt": "Create a function to initialize a canvas element with a given width and height.",
+    "desired_output": "function setupCanvas(canvasId, width, height) {\n  const canvas = document.getElementById(canvasId);\n  const context = canvas.getContext('2d');\n  canvas.width = width;\n  canvas.height = height;\n  return { canvas, context };\n}\n\n// Usage\nconst { canvas, context } = setupCanvas('gameCanvas', 800, 400);"
+  },
+  {
+    "prompt": "Write a function to draw a red square on a canvas at position (x, y).",
+    "desired_output": "function drawSquare(context, x, y, size) {\n  context.fillStyle = 'red';\n  context.fillRect(x, y, size, size);\n}\n\n// Usage\ndrawSquare(context, 50, 50, 20);"
+  },
+  {
+    "prompt": "Implement a basic game loop using requestAnimationFrame.",
+    "desired_output": "function createGameLoop(update, render) {\n  function loop() {\n    update();\n    render();\n    requestAnimationFrame(loop);\n  }\n  requestAnimationFrame(loop);\n}\n\n// Usage\nconst state = { x: 0 };\nfunction update() { state.x += 1; }\nfunction render() { context.clearRect(0, 0, canvas.width, canvas.height); drawSquare(context, state.x, 50, 20); }\ncreateGameLoop(update, render);"
+  },
+  {
+    "prompt": "Create a function to detect collision between two rectangles.",
+    "desired_output": "function checkCollision(rect1, rect2) {\n  return (\n    rect1.x < rect2.x + rect2.width &&\n    rect1.x + rect1.width > rect2.x &&\n    rect1.y < rect2.y + rect2.height &&\n    rect1.y + rect1.height > rect2.y\n  );\n}\n\n// Usage\nconst rect1 = { x: 10, y: 10, width: 20, height: 20 };\nconst rect2 = { x: 15, y: 15, width: 20, height: 20 };\nif (checkCollision(rect1, rect2)) console.log('Collision!');"
+  },
+  {
+    "prompt": "Handle keyboard input to move an object up and down.",
+    "desired_output": "function setupKeyboardControls(actions) {\n  document.addEventListener('keydown', (event) => {\n    if (actions[event.key]) actions[event.key]();\n  });\n}\n\n// Usage\nconst player = { y: 100 };\nconst controls = {\n  'ArrowUp': () => player.y -= 10,\n  'ArrowDown': () => player.y += 10\n};\nsetupKeyboardControls(controls);"
+  },
+  {
+    "prompt": "Create a score manager to track and display points on a canvas.",
+    "desired_output": "function createScoreManager(context, x, y) {\n  let score = 0;\n  return {\n    increment: () => score++,\n    reset: () => (score = 0),\n    draw: () => {\n      context.font = '20px Arial';\n      context.fillStyle = 'white';\n      context.fillText(`Score: ${score}`, x, y);\n    }\n  };\n}\n\n// Usage\nconst scoreManager = createScoreManager(context, 50, 30);\nscoreManager.increment();\nscoreManager.draw();"
+  },
+  {
+    "prompt": "Render a moving ball that bounces off canvas edges.",
+    "desired_output": "function createBall(context, canvas) {\n  let x = canvas.width / 2, y = canvas.height / 2, dx = 5, dy = 3;\n  return {\n    update: () => {\n      x += dx; y += dy;\n      if (x < 0 || x > canvas.width) dx = -dx;\n      if (y < 0 || y > canvas.height) dy = -dy;\n    },\n    draw: () => {\n      context.fillStyle = 'white';\n      context.fillRect(x, y, 10, 10);\n    }\n  };\n}\n\n// Usage\nconst ball = createBall(context, canvas);\nball.update();\nball.draw();"
+  },
+  {
+    "prompt": "Integrate a canvas-based game into a React component.",
+    "desired_output": "import React, { useRef, useEffect } from 'react';\n\nfunction GameCanvas({ width, height, gameLoop }) {\n  const canvasRef = useRef(null);\n\n  useEffect(() => {\n    const canvas = canvasRef.current;\n    const context = canvas.getContext('2d');\n    gameLoop(context, canvas);\n  }, [gameLoop]);\n\n  return <canvas ref={canvasRef} width={width} height={height} />;\n}\n\n// Usage\nfunction App() {\n  const gameLoop = (context, canvas) => {\n    context.fillStyle = 'blue';\n    context.fillRect(0, 0, canvas.width, canvas.height);\n  };\n  return <GameCanvas width={800} height={400} gameLoop={gameLoop} />;\n}"
+  },
+  {
+    "prompt": "Create a function to rotate a 2D matrix (e.g., for Tetris pieces).",
+    "desired_output": "function rotateMatrix(matrix) {\n  const n = matrix.length;\n  const rotated = Array(n).fill().map(() => Array(n).fill(0));\n  for (let y = 0; y < n; y++) {\n    for (let x = 0; x < n; x++) {\n      rotated[x][n - 1 - y] = matrix[y][x];\n    }\n  }\n  return rotated;\n}\n\n// Usage\nconst piece = [[0, 0, 1], [1, 1, 1], [0, 0, 0]];\nconst rotatedPiece = rotateMatrix(piece);"
+  },
+  {
+    "prompt": "Check if a Tetris piece collides with the game board.",
+    "desired_output": "function checkTetrisCollision(board, piece) {\n  const m = piece.matrix;\n  const o = piece.pos;\n  for (let y = 0; y < m.length; y++) {\n    for (let x = 0; x < m[y].length; x++) {\n      if (m[y][x] && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {\n        return true;\n      }\n    }\n  }\n  return false;\n}\n\n// Usage\nconst board = Array(20).fill().map(() => Array(10).fill(0));\nconst piece = { pos: { x: 4, y: 0 }, matrix: [[0, 0, 1], [1, 1, 1], [0, 0, 0]] };\nif (checkTetrisCollision(board, piece)) console.log('Collision!');"
+  },
+  {
+    "prompt": "Create a function to clear completed lines in a Tetris board.",
+    "desired_output": "function clearLines(board) {\n  const newBoard = board.filter(row => row.some(cell => cell === 0));\n  const linesCleared = board.length - newBoard.length;\n  for (let i = 0; i < linesCleared; i++) {\n    newBoard.unshift(Array(board[0].length).fill(0));\n  }\n  return { newBoard, linesCleared };\n}\n\n// Usage\nconst board = [Array(10).fill(1), Array(10).fill(0)];\nconst { newBoard, linesCleared } = clearLines(board);\nconsole.log(`Cleared ${linesCleared} lines`);"
+  },
+  {
+    "prompt": "Implement a paddle movement system for a Pong game.",
+    "desired_output": "function createPaddle(canvas, initialY) {\n  let y = initialY;\n  return {\n    update: (direction) => {\n      if (direction === 'up' && y > 0) y -= 10;\n      if (direction === 'down' && y < canvas.height - 100) y += 10;\n    },\n    draw: (context, x) => {\n      context.fillStyle = 'white';\n      context.fillRect(x, y, 10, 100);\n    },\n    getY: () => y\n  };\n}\n\n// Usage\nconst paddle = createPaddle(canvas, 150);\npaddle.update('up');\npaddle.draw(context, 10);"
+  },
+  {
+    "prompt": "Create a React component to toggle between two games (e.g., Tetris and Pong).",
+    "desired_output": "import React, { useState } from 'react';\nimport GameCanvas from './GameCanvas';\n\nfunction GamePlatform({ tetrisLoop, pongLoop }) {\n  const [game, setGame] = useState('tetris');\n  return (\n    <div className=\"flex flex-col items-center p-4 bg-gray-900 min-h-screen\">\n      <button onClick={() => setGame('tetris')} className=\"px-4 py-2 bg-green-500 text-white rounded mb-4\">Tetris</button>\n      <button onClick={() => setGame('pong')} className=\"px-4 py-2 bg-blue-500 text-white rounded mb-4\">Pong</button>\n      <GameCanvas width={800} height={400} gameLoop={game === 'tetris' ? tetrisLoop : pongLoop} />\n    </div>\n  );\n}\n\n// Usage\n// <GamePlatform tetrisLoop={tetrisLoop} pongLoop={pongLoop} />"
+  },
+  {
+    "prompt": "Generate a random tetromino shape for a Tetris game.",
+    "desired_output": "const SHAPES = [\n  [[0, 0, 1], [1, 1, 1], [0, 0, 0]], // L\n  [[1, 1], [1, 1]], // Square\n  [[0, 1, 0], [1, 1, 1], [0, 0, 0]] // T\n];\n\nfunction getRandomTetromino() {\n  const index = Math.floor(Math.random() * SHAPES.length);\n  return SHAPES[index];\n}\n\n// Usage\nconst tetromino = getRandomTetromino();"
+  },
+  {
+    "prompt": "Create a function to pause and resume a game loop.",
+    "desired_output": "function createPauseableLoop(update, render) {\n  let isPaused = false;\n  let animationFrameId;\n  function loop() {\n    if (!isPaused) {\n      update();\n      render();\n    }\n    animationFrameId = requestAnimationFrame(loop);\n  }\n  loop();\n  return {\n    pause: () => (isPaused = true),\n    resume: () => (isPaused = false),\n    stop: () => cancelAnimationFrame(animationFrameId)\n  };\n}\n\n// Usage\nconst game = createPauseableLoop(update, render);\ndocument.addEventListener('keydown', (e) => {\n  if (e.key === 'p') game.pause();\n  if (e.key === 'r') game.resume();\n});"
+  }
+]
+```
+
+## General Explanation
+This JSON file provides a structured set of examples for common game development tasks, ranging from basic (canvas setup, drawing shapes) to advanced (Tetris collision, React game platform). Each prompt is concise, and the desired output includes complete, reusable code with usage examples. The examples are designed to integrate with projects like Tetris (**12-tutorial-tetris.md**) for piece rotation or Pong (**13-example-react-game.md**) for paddle movement.
+
+## Best Practices
+- **Clarity**: Prompts are specific and actionable, with outputs that include both code and usage examples.
+- **Modularity**: Outputs are self-contained functions or components for easy reuse.
+- **Compatibility**: All code is designed for browser-based environments using JavaScript and React.
+- **Scalability**: Examples cover a range of complexities to support both beginners and advanced developers.
+- **Validation**: The JSON is properly formatted and parseable, with no syntax errors.

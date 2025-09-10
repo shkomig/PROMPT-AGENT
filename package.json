@@ -9,9 +9,8 @@
   "dependencies": {
     "express": "^4.18.2",
     "pdf-parse": "^1.1.1",
-  "natural": "^5.1.6",
-  "mammoth": "^1.4.19",
-  "chokidar": "^3.5.3"
+    "natural": "^5.1.6",
+    "mammoth": "^1.4.19"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
