@@ -85,28 +85,118 @@ pre {
 }
 
 /* App shell styles */
-.app-shell { background: var(--bg); min-height: 100vh; }
-.app-header { display:flex; justify-content:space-between; align-items:center; padding:16px 32px; background: linear-gradient(90deg,#2b5d9e,#6b3b8f); color:#fff; }
-.brand { display:flex; gap:12px; align-items:center }
-.logo { font-size:28px; }
-.title { font-weight:700 }
-.subtitle { font-size:12px; opacity:0.9 }
-.app-body { display:flex; gap:20px; padding:24px; }
-.sidebar { width:220px; }
-.sidebar-section { background:var(--card); padding:12px; border-radius:8px; margin-bottom:12px }
-.content { flex:1 }
-.card { background:var(--card); padding:16px; border-radius:10px; box-shadow:0 6px 18px rgba(19,24,40,0.06); margin-bottom:16px }
-.row { display:flex; gap:8px; align-items:center; margin-top:12px }
-.actions { display:flex; gap:12px; align-items:center; margin-top:12px }
-.primary { background:#3852a6; color:#fff; padding:8px 14px; border-radius:8px; border:none }
-.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 10px; border-radius:8px }
-.spinner { width:22px; height:22px; border-radius:50%; border:3px solid rgba(0,0,0,0.1); border-top-color:#3852a6; animation:spin 1s linear infinite }
-.hidden { display:none }
-@keyframes spin { to { transform:rotate(360deg) } }
-.tabs { display:flex; gap:8px; margin:8px 0 }
-.tab { padding:6px 10px; border-radius:6px; background:#f0f2f8; border:none; cursor:pointer }
-.tab.active { background:#3852a6; color:#fff }
-.small { font-size:13px }
+.app-shell {
+  background: var(--bg);
+  min-height: 100vh;
+}
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 32px;
+  background: linear-gradient(90deg, #2b5d9e, #6b3b8f);
+  color: #fff;
+}
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.logo {
+  font-size: 28px;
+}
+.title {
+  font-weight: 700;
+}
+.subtitle {
+  font-size: 12px;
+  opacity: 0.9;
+}
+.app-body {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+}
+.sidebar {
+  width: 220px;
+}
+.sidebar-section {
+  background: var(--card);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+.content {
+  flex: 1;
+}
+.card {
+  background: var(--card);
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(19, 24, 40, 0.06);
+  margin-bottom: 16px;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+}
+.primary {
+  background: #3852a6;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+}
+.ghost {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #3852a6;
+  animation: spin 1s linear infinite;
+}
+.hidden {
+  display: none;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+.tab {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f0f2f8;
+  border: none;
+  cursor: pointer;
+}
+.tab.active {
+  background: #3852a6;
+  color: #fff;
+}
+.small {
+  font-size: 13px;
+}
 #model {
   margin-top: 8px;
   font-weight: 600;

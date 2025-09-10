@@ -24,6 +24,15 @@ const DATA_DIR = path.join(__dirname, 'data')
 // Config: threshold for considering a retrieved chunk as relevant (TF-IDF measure)
 const CONTEXT_TFIDF_THRESHOLD = 0.08 // tuneable; TF-IDF measure scale is library-specific
 
+function getActiveThreshold() {
+  const t = process.env.TEST_THRESHOLD
+  if (t !== undefined) {
+    const v = parseFloat(t)
+    if (!Number.isNaN(v)) return v
+  }
+  return CONTEXT_TFIDF_THRESHOLD
+}
+
 const app = express()
 // capture raw body for debugging JSON parse errors and set a reasonable size limit
 app.use(
@@ -107,6 +116,17 @@ async function buildIndex() {
   tfidf = new natural.TfIdf()
   tfDocuments = []
   PRIORITY_BASES = new Set()
+  // load summaries if present (to allow short summaries as additional retrievable docs)
+  let summaries = []
+  try {
+    const sPath = path.join(DATA_DIR, 'summaries.json')
+    if (fs.existsSync(sPath)) {
+      const raw = await fs.promises.readFile(sPath, 'utf8')
+      summaries = JSON.parse(raw)
+    }
+  } catch (e) {
+    console.error('failed loading summaries.json', e.message)
+  }
   let id = 0
   const priorityNames = new Set(['12', '13', '14', '15'])
   for (const g of guides) {
@@ -116,6 +136,19 @@ async function buildIndex() {
     for (const c of chunks) {
       tfDocuments.push({ id: id++, filename: g.filename, base, text: c })
       tfidf.addDocument(c)
+    }
+  }
+
+  // also add summaries as lightweight documents (filename: summary:<filename>)
+  for (const s of summaries) {
+    try {
+      const text = (s.summary || '').toString()
+      if (text && text.length > 20) {
+        tfDocuments.push({ id: id++, filename: `summary:${s.filename}`, base: path.basename(s.filename, path.extname(s.filename)), text })
+        tfidf.addDocument(text)
+      }
+    } catch (e) {
+      // ignore malformed summary entries
     }
   }
 }
@@ -145,12 +178,18 @@ function retrieveTopK(query, k = 3) {
   scores.sort((a, b) => b.score - a.score)
   // apply threshold and boost priority docs
   const filtered = []
+  const activeThreshold = getActiveThreshold()
   for (const s of scores) {
     const doc = tfDocuments[s.index]
     if (!doc) continue
     const boost = doc.base && PRIORITY_BASES.has(doc.base) ? 2.0 : 1.0
     const adjusted = s.score * boost
-    if (adjusted >= CONTEXT_TFIDF_THRESHOLD) filtered.push({ filename: doc.filename, snippet: doc.text, score: adjusted })
+    if (adjusted >= activeThreshold)
+      filtered.push({
+        filename: doc.filename,
+        snippet: doc.text,
+        score: adjusted,
+      })
   }
   // return top-k of filtered results
   return filtered.slice(0, k)
@@ -329,7 +368,8 @@ app.post('/api/build', async (req, res) => {
 
     function detectLanguage(text) {
       if (!text) return 'text'
-      if (/\b(function|const|let|=>|console\.log)\b/.test(text)) return 'javascript'
+      if (/\b(function|const|let|=>|console\.log)\b/.test(text))
+        return 'javascript'
       if (/\b(def |import |print\()/.test(text)) return 'python'
       if (/^<\?php|echo\s+\$/m.test(text)) return 'php'
       return 'text'
@@ -337,12 +377,18 @@ app.post('/api/build', async (req, res) => {
 
     function describeSnippet(text) {
       const t = (text || '').toLowerCase()
-      if (t.includes('authorization') || t.includes('bearer') || t.includes('token'))
+      if (
+        t.includes('authorization') ||
+        t.includes('bearer') ||
+        t.includes('token')
+      )
         return 'Retrieves a valid Bearer token and sets HTTP headers.'
       if (t.includes('fetch(') || t.includes('axios') || t.includes('http'))
         return 'Example: HTTP request with headers and JSON payload.'
-      if (t.includes('class ') || t.includes('new ')) return 'Class or constructor example.'
-      if (t.includes('def ') || t.includes('import ')) return 'Python function example.'
+      if (t.includes('class ') || t.includes('new '))
+        return 'Class or constructor example.'
+      if (t.includes('def ') || t.includes('import '))
+        return 'Python function example.'
       return 'Code example demonstrating the described behavior.'
     }
 
@@ -357,17 +403,131 @@ app.post('/api/build', async (req, res) => {
           .split(/\r?\n/)
           .map((l) => l.trimEnd())
           .join('\n')
-    return `// From ${filename}: ${desc}\n\n\`\`\`${lang}\n${safeSnippet}\n\`\`\`\n`
+        return `// From ${filename}: ${desc}\n\n\`\`\`${lang}\n${safeSnippet}\n\`\`\`\n`
       }
       // plain text: collapse whitespace and return a short paragraph
       const collapsed = short.replace(/\s+/g, ' ').trim()
       return collapsed
     }
-    const contextSection = example
-      ? formatSnippet(example.snippet.slice(0, 800), example.filename)
-      : 'Context: No example available from the guides.'
-    
-      
+
+    // Image request helpers (defined here so they are available regardless of retrieval result)
+    function isImageRequest(text) {
+      if (!text) return false
+      const t = text.toLowerCase()
+      const keywords = ['תמונה', 'צור לי תמונה', 'צייר', 'generate image', 'create image', 'midjourney', 'dalle', 'stable diffusion', 'render', 'image of', 'draw']
+      return keywords.some((k) => t.includes(k))
+    }
+
+    function buildImagePromptEnglish(originalHebrew) {
+      const base = (originalHebrew || '').toString()
+      // simple mapping: try to detect a few Hebrew subjects; fallback to a safe example
+      let subject = 'an old man smoking a cigar'
+      if (/טטריס|טטריס/i.test(base)) subject = 'a retro Tetris game UI, neon colors, isometric view'
+      // pull adjectives if present (very naive)
+      const adjectives = []
+      const adjMatches = base.match(/(זקן|צעיר|חייכן|עצבני|יפה|מרגש|דרמטי)/g)
+      if (adjMatches && adjMatches.length) adjectives.push(...adjMatches)
+      const style = 'photorealistic, cinematic'
+      const lighting = 'dramatic low-key lighting'
+      const camera = '50mm, shallow depth of field'
+      const mood = adjectives.length ? adjectives.join(', ') : 'moody, introspective'
+      const color = 'warm tones'
+      const negative = 'no text, no watermark, avoid blur'
+      const prompt = `${subject}, ${style}, ${mood}, ${lighting}, ${camera}, ${color} --v 5 --ar 3:4 --quality 2.0 | ${negative}`
+      return prompt
+    }
+    let contextSection = ''
+    if (example) {
+      contextSection = formatSnippet(example.snippet.slice(0, 800), example.filename)
+    } else {
+      // Helper: detect if the user is requesting an image generation prompt
+      function isImageRequest(text) {
+        if (!text) return false
+        const t = text.toLowerCase()
+        const keywords = ['תמונה', 'צור לי תמונה', 'צייר', 'generate image', 'create image', 'midjourney', 'dalle', 'stable diffusion', 'render', 'image of', 'draw']
+        return keywords.some((k) => t.includes(k))
+      }
+
+      function buildImagePromptEnglish(originalHebrew) {
+        // basic heuristic: translate key descriptors or prompt user for missing info; build a detailed Midjourney-style prompt
+        // We'll create a conservative default cover: subject, age, clothing, mood, lighting, style, camera
+        // If the Hebrew contains some adjectives, attempt to include them naively.
+        const base = originalHebrew || ''
+        // naive extraction (could be improved with NLP)
+        const englishSubject = 'an old man smoking a cigar'
+        const style = 'photorealistic, cinematic'
+        const lighting = 'dramatic low-key lighting'
+        const camera = '50mm, shallow depth of field'
+        const mood = 'moody, introspective'
+        const color = 'warm tones'
+        const negative = 'no text, no watermark, avoid blur'
+        const prompt = `${englishSubject}, ${style}, ${mood}, ${lighting}, ${camera}, ${color} --v 5 --ar 3:4 --quality 2.0 | ${negative}`
+        return prompt
+      }
+      // fallback: try to load summaries.json and pick a summary that matches task or priority
+      try {
+        const sPath = path.join(DATA_DIR, 'summaries.json')
+        if (fs.existsSync(sPath)) {
+          const sums = JSON.parse(await fs.promises.readFile(sPath, 'utf8'))
+          // forced map: exact keyword -> filename
+          const FORCED_SUMMARY_MAP = {
+            tetris: '12-tutorial-tetris.markdown',
+            טטריס: '12-tutorial-tetris.markdown',
+            game: '13-example-react-game.markdown',
+            משחק: '13-example-react-game.markdown'
+          }
+          const lowerQuery = (text || '').toLowerCase()
+          let forcedChosen = null
+          for (const [kw, fname] of Object.entries(FORCED_SUMMARY_MAP)) {
+            if (lowerQuery.includes(kw)) {
+              const found = sums.find((x) => x.filename === fname || x.filename.endsWith(fname))
+              if (found) {
+                forcedChosen = found
+                break
+              }
+            }
+          }
+          if (forcedChosen) {
+            contextSection = `Context (forced summary from ${forcedChosen.filename}):\n${forcedChosen.summary}`
+          } else {
+            // Prefer entries with priority tag, otherwise use a task->tags mapping
+            const prefer = []
+            const scored = []
+            const TASK_TAG_MAP = {
+              summarization: ['summary', 'overview', 'analysis', 'סיכום', 'תקציר'],
+              translation: ['translate', 'translation', 'language', 'תרגום'],
+              analysis: ['analysis', 'security', 'performance', 'deploy', 'ניתוח', 'אבטחה', 'ביצועים'],
+              creative: ['tetris', 'game', 'canvas', 'react', 'javascript', 'משחק', 'טטריס', 'יצירתי'],
+              instructions: ['tutorial', 'guide', 'tutorial-tetris', 'tetris', 'מדריך', 'הדרכה'],
+              ui: ['ui', 'ux', 'interface', 'עיצוב', 'ממשק', 'layout'],
+              performance: ['performance', 'fps', 'memory', 'ביצועים', 'פרופיילינג'],
+              input: ['input', 'keyboard', 'touch', 'קלט', 'מקלדת', 'מגע']
+            }
+            const wanted = TASK_TAG_MAP[task] || [task]
+            for (const s of sums) {
+              const ttags = (s.tags || []).map((x) => x.toLowerCase())
+              if (ttags.includes('priority') || /priority/i.test(s.filename)) prefer.push(s)
+              // score by overlap with wanted tags
+              let score = 0
+              for (const w of wanted) if (ttags.includes(w)) score++
+              scored.push({ s, score })
+            }
+            // pick best: prefer priority entries first, otherwise highest score, otherwise first available
+            let chosen = null
+            if (prefer.length) chosen = prefer[0]
+            else {
+              scored.sort((a, b) => b.score - a.score)
+              if (scored.length && scored[0].score > 0) chosen = scored[0].s
+              else if (sums.length) chosen = sums[0]
+            }
+            if (chosen) contextSection = `Context (summary from ${chosen.filename}):\n${chosen.summary}`
+          }
+        }
+      } catch (e) {
+        contextSection = 'Context: No example available from the guides.'
+      }
+      if (!contextSection) contextSection = 'Context: No example available from the guides.'
+    }
 
     // Instruction: include the original Hebrew request and a clear English instruction for the model
     const instructionHebrew = text
@@ -421,55 +581,78 @@ app.post('/api/build', async (req, res) => {
         .join('\n\n')
     }
 
-    const professionalPrompt = [
-      'System: You are an expert, concise, and highly reliable assistant. Follow instructions exactly and produce final results without asking for clarifying questions unless explicitly requested.',
-      '',
-      `Context:\n${contextSection}`,
-      '',
-      fewShotEnglish,
-      `User request (Hebrew): ${instructionHebrew}`,
-      '',
-      `Instruction (English): ${instructionEnglish}`,
-      '',
-      `Task type: ${task}`,
-      '',
-      `${outputFormatEnglish}`,
-      '',
-      `Recommended model: ${
-        task === 'creative' ? 'claude-2.1 (or GPT-4)' : 'gpt-4'
-      }`,
-      `Recommended parameters: temperature=${params.temperature}, top_p=${
-        params.top_p
-      }, top_k=${params.top_k || 'N/A'}`,
-      '',
-      'Behavioral guidelines:\n- Be precise and concise.\n- Use headings and bullet points.\n- When returning code, include runnable code in a single code block and a brief explanation.',
-      '',
-      'Return only the requested output according to the Output format.',
-    ].join('\n')
+    let professionalPrompt = ''
+    if (isImageRequest(text)) {
+      // Image-focused professional prompt: ask for a single-line, high-detail English prompt
+      const imagePrompt = buildImagePromptEnglish(text)
+      professionalPrompt = [
+        'System: You are an expert visual prompt engineer. Produce a single, detailed English prompt suitable for Midjourney/Stable Diffusion/DALLE.',
+        '',
+        `User request (Hebrew): ${instructionHebrew}`,
+        '',
+        'Instruction (English): Generate one single-line, high-detail image prompt in English. Do not include extra commentary. Include style, mood, lighting, camera, and negative constraints if applicable.',
+        '',
+        `Final image prompt: ${imagePrompt}`,
+      ].join('\n')
+      // ensure we don't include unrelated context or examples
+      contextSection = ''
+      fewShotEnglish = ''
+    } else {
+      professionalPrompt = [
+        'System: You are an expert, concise, and highly reliable assistant. Follow instructions exactly and produce final results without asking for clarifying questions unless explicitly requested.',
+        '',
+        `Context:\n${contextSection}`,
+        '',
+        fewShotEnglish,
+        `User request (Hebrew): ${instructionHebrew}`,
+        '',
+        `Instruction (English): ${instructionEnglish}`,
+        '',
+        `Task type: ${task}`,
+        '',
+        `${outputFormatEnglish}`,
+        '',
+        `Recommended model: ${
+          task === 'creative' ? 'claude-2.1 (or GPT-4)' : 'gpt-4'
+        }`,
+        `Recommended parameters: temperature=${params.temperature}, top_p=${
+          params.top_p
+        }, top_k=${params.top_k || 'N/A'}`,
+        '',
+        'Behavioral guidelines:\n- Be precise and concise.\n- Use headings and bullet points.\n- When returning code, include runnable code in a single code block and a brief explanation.',
+        '',
+        'Return only the requested output according to the Output format.',
+      ].join('\n')
+    }
 
     const modelRecommendation =
       task === 'creative' ? 'claude-2.1 (or GPT-4)' : 'gpt-4'
 
     // finalPrompt: compact, paste-ready prompt intended to send straight to GPT-like models
-    const finalPrompt = [
-      'SYSTEM: You are an expert assistant. Follow the instructions exactly and respond concisely.',
-      '',
-      `CONTEXT: ${contextSection.replace(/\n/g, ' ')}`,
-      '',
-      fewShotEnglish ? `EXAMPLE: ${fewShotEnglish.replace(/\n/g, ' ')}` : '',
-      `USER_REQUEST: ${instructionHebrew}`,
-      '',
-      `INSTRUCTION: ${instructionEnglish}`,
-      '',
-      `OUTPUT_FORMAT: ${outputFormatEnglish}`,
-      '',
-      `RECOMMENDED_MODEL: ${modelRecommendation}`,
-      `PARAMETERS: temperature=${params.temperature}, top_p=${params.top_p}`,
-      '',
-      'NOTE: Return only the requested output. Do not include internal commentary.',
-    ]
-      .filter(Boolean)
-      .join('\n')
+    let finalPrompt = ''
+    if (isImageRequest(text)) {
+      finalPrompt = buildImagePromptEnglish(text)
+    } else {
+      finalPrompt = [
+        'SYSTEM: You are an expert assistant. Follow the instructions exactly and respond concisely.',
+        '',
+        `CONTEXT: ${contextSection.replace(/\n/g, ' ')}`,
+        '',
+        fewShotEnglish ? `EXAMPLE: ${fewShotEnglish.replace(/\n/g, ' ')}` : '',
+        `USER_REQUEST: ${instructionHebrew}`,
+        '',
+        `INSTRUCTION: ${instructionEnglish}`,
+        '',
+        `OUTPUT_FORMAT: ${outputFormatEnglish}`,
+        '',
+        `RECOMMENDED_MODEL: ${modelRecommendation}`,
+        `PARAMETERS: temperature=${params.temperature}, top_p=${params.top_p}`,
+        '',
+        'NOTE: Return only the requested output. Do not include internal commentary.',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    }
 
     res.json({
       ok: true,

@@ -30,7 +30,10 @@
           </div>
           <div class="sidebar-section">
             <h4>סינון</h4>
-            <label><input type="checkbox" id="filterRelevant" /> הצג רק רלוונטיים</label>
+            <label
+              ><input type="checkbox" id="filterRelevant" /> הצג רק
+              רלוונטיים</label
+            >
           </div>
           <div class="sidebar-section small">
             <div>Model:</div>
@@ -44,7 +47,11 @@
         <main class="content">
           <section class="card" id="inputCard">
             <label for="userText">הזן את הפרומפט/בקשה שלך בעברית:</label>
-            <textarea id="userText" placeholder="הקלד כאן..." rows="6"></textarea>
+            <textarea
+              id="userText"
+              placeholder="הקלד כאן..."
+              rows="6"
+            ></textarea>
 
             <div class="row">
               <label for="langSelect">שפת פלט</label>
@@ -54,11 +61,25 @@
               </select>
 
               <label for="temp">temperature</label>
-              <input id="temp" type="range" min="0" max="1" step="0.05" value="0.7" />
+              <input
+                id="temp"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value="0.7"
+              />
               <span class="rangeValue" id="tempVal">0.7</span>
 
               <label for="top_p">top_p</label>
-              <input id="top_p" type="range" min="0" max="1" step="0.05" value="1.0" />
+              <input
+                id="top_p"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value="1.0"
+              />
               <span class="rangeValue" id="topVal">1.0</span>
             </div>
 

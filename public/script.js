@@ -32,7 +32,9 @@ async function loadRules() {
       container.appendChild(exTitle)
       for (const ex of data.rules.examples || []) {
         const p = document.createElement('p')
-        p.textContent = `• ${ex.filename}: ${ex.snippet.slice(0, 120).replace(/\n/g, ' ')}...`
+        p.textContent = `• ${ex.filename}: ${ex.snippet
+          .slice(0, 120)
+          .replace(/\n/g, ' ')}...`
         container.appendChild(p)
       }
       return container
@@ -75,7 +77,7 @@ async function buildPrompt() {
     const data = await res.json()
     if (!data.ok) throw new Error(data.error || 'Failed to build prompt')
 
-  resultEl.textContent = data.professionalPrompt
+    resultEl.textContent = data.professionalPrompt
     // show detailed professional prompt
     resultEl.textContent = data.professionalPrompt
     // show final paste-ready prompt
@@ -136,11 +138,17 @@ top_p.addEventListener('input', () => (topVal.textContent = top_p.value))
 // tabs
 document.querySelectorAll('.tab').forEach((btn) => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach((b) => b.classList.remove('active'))
+    document
+      .querySelectorAll('.tab')
+      .forEach((b) => b.classList.remove('active'))
     btn.classList.add('active')
     const target = btn.dataset.target
-    document.getElementById('result').classList.toggle('hidden', target !== 'result')
-    document.getElementById('final').classList.toggle('hidden', target !== 'final')
+    document
+      .getElementById('result')
+      .classList.toggle('hidden', target !== 'result')
+    document
+      .getElementById('final')
+      .classList.toggle('hidden', target !== 'final')
   })
 })
 
