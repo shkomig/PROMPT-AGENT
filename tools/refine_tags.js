@@ -13,7 +13,10 @@ const RULES = [
   { tag: 'priority', words: ['priority', 'PRIORITY'] },
   { tag: 'input', words: ['input', 'keyboard', 'מקלדת', 'touch', 'קלט'] },
   { tag: 'performance', words: ['performance', 'fps', 'ביצועים'] },
-  { tag: 'collision', words: ['collision', 'התנגשות', 'collision detection', 'תנגשויות'] },
+  {
+    tag: 'collision',
+    words: ['collision', 'התנגשות', 'collision detection', 'תנגשויות'],
+  },
 ]
 
 async function run() {
@@ -31,10 +34,18 @@ async function run() {
     }
     s.tags = Array.from(tags)
     // set priority flag if title or tags include PRIORITY
-    if (s.tags.includes('priority') || /priority/i.test(s.filename) || (s.filename || '').toLowerCase().includes('priority')) s.priority = true
+    if (
+      s.tags.includes('priority') ||
+      /priority/i.test(s.filename) ||
+      (s.filename || '').toLowerCase().includes('priority')
+    )
+      s.priority = true
   }
   await fs.promises.writeFile(SUM_PATH, JSON.stringify(sums, null, 2), 'utf8')
   console.log('refined tags for', sums.length, 'entries')
 }
 
-run().catch((e) => { console.error('refine failed', e); process.exit(1) })
+run().catch((e) => {
+  console.error('refine failed', e)
+  process.exit(1)
+})

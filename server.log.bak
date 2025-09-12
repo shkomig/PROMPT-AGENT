@@ -1,0 +1,213 @@
+Server listening on http://localhost:3000
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at parse (C:\AI-APP\Prompt -agent-01\node_modules\body-parser\lib\types\json.js:92:19)
+    at C:\AI-APP\Prompt -agent-01\node_modules\body-parser\lib\read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    at invokeCallback (C:\AI-APP\Prompt -agent-01\node_modules\raw-body\index.js:238:16)
+    at done (C:\AI-APP\Prompt -agent-01\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (C:\AI-APP\Prompt -agent-01\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:518:28)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+file added C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+file added C:\AI-APP\Prompt -agent-01\data\12.docx
+file removed C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read 12.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+file added C:\AI-APP\Prompt -agent-01\data\~$12.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read 12.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read ~$12.docx Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+file added C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\12.docx
+file added C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~$12.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+file added C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+file added C:\AI-APP\Prompt -agent-01\data\13.docx
+file added C:\AI-APP\Prompt -agent-01\data\14.docx
+file added C:\AI-APP\Prompt -agent-01\data\~$13.docx
+file removed C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read 13.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+Failed to read 14.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read ~$13.docx Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+file added C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\13.docx
+file added C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+Failed to read 14.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+file added C:\AI-APP\Prompt -agent-01\data\~$14.docx
+file removed C:\AI-APP\Prompt -agent-01\data\~$13.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read 14.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read ~$14.docx Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+file added C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\14.docx
+file added C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file added C:\AI-APP\Prompt -agent-01\data\15.docx
+file added C:\AI-APP\Prompt -agent-01\data\~$15.docx
+file removed C:\AI-APP\Prompt -agent-01\data\~$14.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read 15.docx End of data reached (data length = 0, asked index = 4). Corrupted zip ?
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Failed to read ~$15.docx Can't find end of central directory : is this a zip file ? If it is, see https://stuk.github.io/jszip/documentation/howto/read_zip.html
+file added C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file changed C:\AI-APP\Prompt -agent-01\data\15.docx
+file added C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRD0000.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~WRL0001.tmp
+file removed C:\AI-APP\Prompt -agent-01\data\~$15.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+file added C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+file added C:\AI-APP\Prompt -agent-01\data\16.docx
+file removed C:\AI-APP\Prompt -agent-01\data\ΓאןΓאן╫₧╫í╫₧╫ת ╫⌐╫£ Microsoft Word ╫ק╫ף╫⌐.docx
+file changed C:\AI-APP\Prompt -agent-01\data\16.docx
+file added C:\AI-APP\Prompt -agent-01\data\~$16.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+file removed C:\AI-APP\Prompt -agent-01\data\~$16.docx
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32
+Warning: TT: undefined function: 32

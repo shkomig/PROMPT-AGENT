@@ -10,7 +10,33 @@ const OUT = path.join(DATA_DIR, 'summaries.json')
 const tokenizer = new natural.WordTokenizer()
 
 const KEYWORDS = [
-  'tetris','game','canvas','react','javascript','performance','canvas','input','keyboard','touch','ocr','pdf','security','deploy','i18n','rtl','accessibility','webaudio','audio','collision','physics','state','hooks','component','api','fetch','token'
+  'tetris',
+  'game',
+  'canvas',
+  'react',
+  'javascript',
+  'performance',
+  'canvas',
+  'input',
+  'keyboard',
+  'touch',
+  'ocr',
+  'pdf',
+  'security',
+  'deploy',
+  'i18n',
+  'rtl',
+  'accessibility',
+  'webaudio',
+  'audio',
+  'collision',
+  'physics',
+  'state',
+  'hooks',
+  'component',
+  'api',
+  'fetch',
+  'token',
 ]
 
 async function extractText(abs, ext) {

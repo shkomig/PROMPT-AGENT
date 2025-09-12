@@ -6,10 +6,52 @@ const mammoth = require('mammoth')
 const natural = require('natural')
 
 // tokenizer and TF-IDF index (in-memory)
-const tokenizer = new natural.WordTokenizer()
+// Add Hebrew normalization and light stemming to improve token matching
+function normalizeHebrew(text) {
+  if (!text) return ''
+  let t = text.toString().toLowerCase()
+  t = t.replace(/[\u0591-\u05C7]/g, '')
+  t = t.replace(/[^a-z0-9\u0590-\u05FF\u200c\u200d]+/g, ' ')
+  t = t.replace(/\s+/g, ' ').trim()
+  return t
+}
+
+function stemHebrewToken(tok) {
+  const suffixes = [
+    'ויות',
+    'יות',
+    'ויות',
+    'ים',
+    'ות',
+    'ה',
+    'ו',
+    'י',
+    'ת',
+    'נו',
+    'כם',
+    'כן',
+    'יהם',
+    'יהן',
+  ]
+  for (const sfx of suffixes) {
+    if (tok.length > sfx.length + 2 && tok.endsWith(sfx)) {
+      return tok.slice(0, -sfx.length)
+    }
+  }
+  return tok
+}
+
+function tokenizeNormalized(text) {
+  const norm = normalizeHebrew(text)
+  if (!norm) return []
+  return norm.split(' ').map(stemHebrewToken).filter(Boolean)
+}
+const tokenizer = { tokenize: tokenizeNormalized }
 let tfidf = null
 let tfDocuments = []
 let PRIORITY_BASES = new Set()
+let embeddingsIndex = null
+let localVectors = null // { vocab: [...], vectors: [{filename,text,vec}], idf: {} }
 
 // simple debounce helper
 function debounce(fn, wait) {
@@ -48,6 +90,22 @@ app.use(
   })
 )
 app.use(express.static(path.join(__dirname, 'public')))
+
+// Load persisted local_vectors.json if present (so we can use it as fallback)
+try {
+  const lvPath = path.join(DATA_DIR, 'local_vectors.json')
+  if (fs.existsSync(lvPath)) {
+    const raw = fs.readFileSync(lvPath, 'utf8')
+    localVectors = JSON.parse(raw)
+    console.log(
+      'Loaded persisted local_vectors entries=',
+      localVectors.vectors.length
+    )
+  }
+} catch (e) {
+  console.error('failed loading persisted local_vectors.json', e.message)
+  localVectors = null
+}
 
 // error handler for invalid JSON body (body-parser)
 app.use((err, req, res, next) => {
@@ -144,29 +202,110 @@ async function buildIndex() {
     try {
       const text = (s.summary || '').toString()
       if (text && text.length > 20) {
-        tfDocuments.push({ id: id++, filename: `summary:${s.filename}`, base: path.basename(s.filename, path.extname(s.filename)), text })
+        tfDocuments.push({
+          id: id++,
+          filename: `summary:${s.filename}`,
+          base: path.basename(s.filename, path.extname(s.filename)),
+          text,
+        })
         tfidf.addDocument(text)
       }
     } catch (e) {
       // ignore malformed summary entries
     }
   }
+  // try to load embeddings index if present
+  try {
+    const embPath = path.join(DATA_DIR, 'embeddings.json')
+    if (fs.existsSync(embPath)) {
+      const raw = await fs.promises.readFile(embPath, 'utf8')
+      embeddingsIndex = JSON.parse(raw)
+      console.log('Loaded embeddings index entries=', embeddingsIndex.length)
+    } else {
+      embeddingsIndex = null
+    }
+  } catch (e) {
+    console.error('failed loading embeddings.json', e.message)
+    embeddingsIndex = null
+  }
+  // build local TF-IDF vectors for cosine fallback
+  try {
+    const vocab = {}
+    const docTokens = []
+    for (let i = 0; i < tfDocuments.length; i++) {
+      const doc = tfDocuments[i]
+      const toks = tokenizeNormalized(doc.text || '')
+      docTokens.push(toks)
+      for (const t of toks) vocab[t] = (vocab[t] || 0) + 1
+    }
+    const vocabList = Object.keys(vocab).slice(0, 5000) // limit size
+    const idf = {}
+    for (const w of vocabList) {
+      let df = 0
+      for (const toks of docTokens) if (toks.includes(w)) df++
+      idf[w] = Math.log((1 + tfDocuments.length) / (1 + df))
+    }
+    const vectors = []
+    for (let i = 0; i < tfDocuments.length; i++) {
+      const doc = tfDocuments[i]
+      const vec = new Array(vocabList.length).fill(0)
+      for (let j = 0; j < vocabList.length; j++) {
+        const w = vocabList[j]
+        const toks = tokenizeNormalized(doc.text || '')
+        const tf = toks.filter((x) => x === w).length
+        vec[j] = tf * (idf[w] || 0)
+      }
+      vectors.push({ filename: doc.filename, text: doc.text, vec })
+    }
+    localVectors = { vocab: vocabList, vectors, idf }
+    console.log('Built local vectors entries=', vectors.length)
+  } catch (e) {
+    console.error('local vectors build error', e.message)
+    localVectors = null
+  }
 }
 
-// Watch data directory and rebuild index on changes (debounced)
-try {
-  const rebuild = debounce(() => {
-    buildIndex().catch((e) => console.error('index build error', e.message))
-  }, 500)
-  fs.watch(DATA_DIR, { persistent: false }, (eventType, filename) => {
-    if (filename) {
-      console.log('data dir change detected:', eventType, filename)
-      rebuild()
-    }
-  })
-} catch (err) {
-  // ignore watcher errors if DATA_DIR missing
+// Watch data directory but ignore temporary editor/OS files and debounce rapid events
+let watchTimer = null
+let buildingIndex = false
+const shouldIgnore = (name) => {
+  if (!name) return true
+  const base = path.basename(name)
+  // ignore Office temp files, .tmp, hidden, and generated index files
+  if (base.startsWith('~$')) return true
+  if (base.endsWith('.tmp')) return true
+  if (base.startsWith('.')) return true
+  const generated = [
+    'local_vectors.json',
+    'embeddings.json',
+    'summaries.json',
+    'server.log',
+  ]
+  if (generated.includes(base)) return true
+  return false
 }
+
+fs.watch(DATA_DIR, { recursive: true }, (eventType, filename) => {
+  if (shouldIgnore(filename)) return
+  const full = path.join(DATA_DIR, filename || '')
+  console.log('data dir change detected:', eventType, full)
+  if (buildingIndex) {
+    console.log('build already in progress, skipping event')
+    return
+  }
+  if (watchTimer) clearTimeout(watchTimer)
+  watchTimer = setTimeout(async () => {
+    try {
+      buildingIndex = true
+      await buildIndex()
+    } catch (e) {
+      console.error('error during buildIndex from watcher', e.message)
+    } finally {
+      buildingIndex = false
+      watchTimer = null
+    }
+  }, 700)
+})
 
 // Retrieve top-k relevant chunks for a query using TF-IDF cosine-like scores
 function retrieveTopK(query, k = 3) {
@@ -335,8 +474,15 @@ app.post('/api/build', async (req, res) => {
 
     // Select pattern
     const pattern = rules.patterns[task] || rules.patterns.analysis
-    // Retrieve top-k relevant chunks as context
-    const retrieved = retrieveTopK(text, 3)
+    // Retrieve top-k relevant chunks as context: try embeddings first, fallback to TF-IDF
+    let retrieved = []
+    try {
+      const emb = await retrieveTopKEmbeddings(text, 3)
+      if (emb && emb.length) retrieved = emb
+      else retrieved = retrieveTopK(text, 3)
+    } catch (e) {
+      retrieved = retrieveTopK(text, 3)
+    }
     const example = retrieved && retrieved.length ? retrieved[0] : null
 
     // Build the professional prompt in English, ready to paste into GPT-like platforms
@@ -414,7 +560,19 @@ app.post('/api/build', async (req, res) => {
     function isImageRequest(text) {
       if (!text) return false
       const t = text.toLowerCase()
-      const keywords = ['תמונה', 'צור לי תמונה', 'צייר', 'generate image', 'create image', 'midjourney', 'dalle', 'stable diffusion', 'render', 'image of', 'draw']
+      const keywords = [
+        'תמונה',
+        'צור לי תמונה',
+        'צייר',
+        'generate image',
+        'create image',
+        'midjourney',
+        'dalle',
+        'stable diffusion',
+        'render',
+        'image of',
+        'draw',
+      ]
       return keywords.some((k) => t.includes(k))
     }
 
@@ -422,7 +580,8 @@ app.post('/api/build', async (req, res) => {
       const base = (originalHebrew || '').toString()
       // simple mapping: try to detect a few Hebrew subjects; fallback to a safe example
       let subject = 'an old man smoking a cigar'
-      if (/טטריס|טטריס/i.test(base)) subject = 'a retro Tetris game UI, neon colors, isometric view'
+      if (/טטריס|טטריס/i.test(base))
+        subject = 'a retro Tetris game UI, neon colors, isometric view'
       // pull adjectives if present (very naive)
       const adjectives = []
       const adjMatches = base.match(/(זקן|צעיר|חייכן|עצבני|יפה|מרגש|דרמטי)/g)
@@ -430,7 +589,9 @@ app.post('/api/build', async (req, res) => {
       const style = 'photorealistic, cinematic'
       const lighting = 'dramatic low-key lighting'
       const camera = '50mm, shallow depth of field'
-      const mood = adjectives.length ? adjectives.join(', ') : 'moody, introspective'
+      const mood = adjectives.length
+        ? adjectives.join(', ')
+        : 'moody, introspective'
       const color = 'warm tones'
       const negative = 'no text, no watermark, avoid blur'
       const prompt = `${subject}, ${style}, ${mood}, ${lighting}, ${camera}, ${color} --v 5 --ar 3:4 --quality 2.0 | ${negative}`
@@ -438,13 +599,28 @@ app.post('/api/build', async (req, res) => {
     }
     let contextSection = ''
     if (example) {
-      contextSection = formatSnippet(example.snippet.slice(0, 800), example.filename)
+      contextSection = formatSnippet(
+        example.snippet.slice(0, 800),
+        example.filename
+      )
     } else {
       // Helper: detect if the user is requesting an image generation prompt
       function isImageRequest(text) {
         if (!text) return false
         const t = text.toLowerCase()
-        const keywords = ['תמונה', 'צור לי תמונה', 'צייר', 'generate image', 'create image', 'midjourney', 'dalle', 'stable diffusion', 'render', 'image of', 'draw']
+        const keywords = [
+          'תמונה',
+          'צור לי תמונה',
+          'צייר',
+          'generate image',
+          'create image',
+          'midjourney',
+          'dalle',
+          'stable diffusion',
+          'render',
+          'image of',
+          'draw',
+        ]
         return keywords.some((k) => t.includes(k))
       }
 
@@ -474,13 +650,15 @@ app.post('/api/build', async (req, res) => {
             tetris: '12-tutorial-tetris.markdown',
             טטריס: '12-tutorial-tetris.markdown',
             game: '13-example-react-game.markdown',
-            משחק: '13-example-react-game.markdown'
+            משחק: '13-example-react-game.markdown',
           }
           const lowerQuery = (text || '').toLowerCase()
           let forcedChosen = null
           for (const [kw, fname] of Object.entries(FORCED_SUMMARY_MAP)) {
             if (lowerQuery.includes(kw)) {
-              const found = sums.find((x) => x.filename === fname || x.filename.endsWith(fname))
+              const found = sums.find(
+                (x) => x.filename === fname || x.filename.endsWith(fname)
+              )
               if (found) {
                 forcedChosen = found
                 break
@@ -494,19 +672,56 @@ app.post('/api/build', async (req, res) => {
             const prefer = []
             const scored = []
             const TASK_TAG_MAP = {
-              summarization: ['summary', 'overview', 'analysis', 'סיכום', 'תקציר'],
+              summarization: [
+                'summary',
+                'overview',
+                'analysis',
+                'סיכום',
+                'תקציר',
+              ],
               translation: ['translate', 'translation', 'language', 'תרגום'],
-              analysis: ['analysis', 'security', 'performance', 'deploy', 'ניתוח', 'אבטחה', 'ביצועים'],
-              creative: ['tetris', 'game', 'canvas', 'react', 'javascript', 'משחק', 'טטריס', 'יצירתי'],
-              instructions: ['tutorial', 'guide', 'tutorial-tetris', 'tetris', 'מדריך', 'הדרכה'],
+              analysis: [
+                'analysis',
+                'security',
+                'performance',
+                'deploy',
+                'ניתוח',
+                'אבטחה',
+                'ביצועים',
+              ],
+              creative: [
+                'tetris',
+                'game',
+                'canvas',
+                'react',
+                'javascript',
+                'משחק',
+                'טטריס',
+                'יצירתי',
+              ],
+              instructions: [
+                'tutorial',
+                'guide',
+                'tutorial-tetris',
+                'tetris',
+                'מדריך',
+                'הדרכה',
+              ],
               ui: ['ui', 'ux', 'interface', 'עיצוב', 'ממשק', 'layout'],
-              performance: ['performance', 'fps', 'memory', 'ביצועים', 'פרופיילינג'],
-              input: ['input', 'keyboard', 'touch', 'קלט', 'מקלדת', 'מגע']
+              performance: [
+                'performance',
+                'fps',
+                'memory',
+                'ביצועים',
+                'פרופיילינג',
+              ],
+              input: ['input', 'keyboard', 'touch', 'קלט', 'מקלדת', 'מגע'],
             }
             const wanted = TASK_TAG_MAP[task] || [task]
             for (const s of sums) {
               const ttags = (s.tags || []).map((x) => x.toLowerCase())
-              if (ttags.includes('priority') || /priority/i.test(s.filename)) prefer.push(s)
+              if (ttags.includes('priority') || /priority/i.test(s.filename))
+                prefer.push(s)
               // score by overlap with wanted tags
               let score = 0
               for (const w of wanted) if (ttags.includes(w)) score++
@@ -520,13 +735,15 @@ app.post('/api/build', async (req, res) => {
               if (scored.length && scored[0].score > 0) chosen = scored[0].s
               else if (sums.length) chosen = sums[0]
             }
-            if (chosen) contextSection = `Context (summary from ${chosen.filename}):\n${chosen.summary}`
+            if (chosen)
+              contextSection = `Context (summary from ${chosen.filename}):\n${chosen.summary}`
           }
         }
       } catch (e) {
         contextSection = 'Context: No example available from the guides.'
       }
-      if (!contextSection) contextSection = 'Context: No example available from the guides.'
+      if (!contextSection)
+        contextSection = 'Context: No example available from the guides.'
     }
 
     // Instruction: include the original Hebrew request and a clear English instruction for the model
@@ -652,6 +869,67 @@ app.post('/api/build', async (req, res) => {
       ]
         .filter(Boolean)
         .join('\n')
+    }
+
+    // Async embeddings-based retrieval: compute query embedding via OpenAI and score against local embeddings.json
+    async function retrieveTopKEmbeddings(query, k = 3) {
+      if (!embeddingsIndex || !embeddingsIndex.length) return null
+      const key = process.env.OPENAI_API_KEY
+      if (!key) return null
+      // prefer node-fetch or global fetch; use built-in fetch if available
+      const fetchFn = global.fetch || require('node-fetch')
+      if (!fetchFn) return null
+
+      try {
+        const resp = await fetchFn('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${key}`,
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-3-small',
+            input: query,
+          }),
+        })
+        if (!resp.ok) return null
+        const j = await resp.json()
+        const qVec = (j.data && j.data[0] && j.data[0].embedding) || null
+        if (!qVec) return null
+
+        function dot(a, b) {
+          let s = 0
+          for (let i = 0; i < a.length; i++) s += a[i] * b[i]
+          return s
+        }
+        function norm(a) {
+          let s = 0
+          for (let i = 0; i < a.length; i++) s += a[i] * a[i]
+          return Math.sqrt(s)
+        }
+
+        const scored = []
+        for (const item of embeddingsIndex) {
+          if (!item.embedding) continue
+          const score =
+            dot(qVec, item.embedding) /
+            (norm(qVec) * norm(item.embedding) + 1e-12)
+          scored.push({ item, score })
+        }
+        scored.sort((a, b) => b.score - a.score)
+        const results = []
+        for (const s of scored.slice(0, k)) {
+          results.push({
+            filename: s.item.filename,
+            snippet: s.item.text,
+            score: s.score,
+          })
+        }
+        return results
+      } catch (e) {
+        console.error('embeddings retrieval error', e.message)
+        return null
+      }
     }
 
     res.json({
